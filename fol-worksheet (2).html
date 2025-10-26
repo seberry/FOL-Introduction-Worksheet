@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>First-Order Logic Worksheet</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    
+    .model-box {
+      background: white;
+      border: 2px solid #2c3e50;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+      position: sticky;
+      top: 10px;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .model-box h2 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+    
+    .model-box p {
+      margin: 8px 0;
+      font-size: 16px;
+    }
+    
+    .name-key {
+      color: #7f8c8d;
+      font-size: 14px;
+      font-style: italic;
+      margin-top: 12px;
+    }
+    
+    .problem {
+      background: white;
+      border-radius: 8px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .problem-header {
+      border-bottom: 2px solid #ecf0f1;
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .problem-number {
+      color: #3498db;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    
+    .formula {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 10px 0;
+      color: #2c3e50;
+    }
+    
+    .english {
+      color: #7f8c8d;
+      font-style: italic;
+      font-size: 16px;
+    }
+    
+    .instructions {
+      background: #e8f4f8;
+      border-left: 4px solid #3498db;
+      padding: 12px;
+      margin: 15px 0;
+      border-radius: 4px;
+      font-size: 15px;
+    }
+    
+    .tf-buttons {
+      margin: 20px 0;
+    }
+    
+    .tf-buttons button {
+      padding: 12px 30px;
+      margin-right: 15px;
+      font-size: 16px;
+      border: 2px solid #95a5a6;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .tf-buttons button:hover {
+      background: #ecf0f1;
+      transform: translateY(-2px);
+    }
+    
+    .tf-buttons button.selected-true {
+      background: #2ecc71;
+      color: white;
+      border-color: #27ae60;
+    }
+    
+    .tf-buttons button.selected-false {
+      background: #e74c3c;
+      color: white;
+      border-color: #c0392b;
+    }
+    
+    .witness-section {
+      margin-top: 20px;
+      padding: 20px;
+      background: #fef9e7;
+      border-radius: 6px;
+      border: 2px solid #f39c12;
+    }
+    
+    .witness-section h4 {
+      margin-top: 0;
+      color: #d68910;
+    }
+    
+    .person-button {
+      display: inline-block;
+      padding: 12px 24px;
+      margin: 8px;
+      border: 2px solid #95a5a6;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+    
+    .person-button:hover {
+      background: #ecf0f1;
+      transform: translateY(-2px);
+    }
+    
+    .feedback {
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 6px;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    
+    .feedback.correct {
+      background: #d4edda;
+      border: 2px solid #28a745;
+      color: #155724;
+    }
+    
+    .feedback.incorrect {
+      background: #f8d7da;
+      border: 2px solid #dc3545;
+      color: #721c24;
+    }
+    
+    .feedback h4 {
+      margin-top: 0;
+    }
+    
+    .verification-line {
+      font-family: 'Courier New', monospace;
+      margin: 5px 0;
+      font-size: 15px;
+    }
+    
+    .checkmark {
+      color: #28a745;
+      font-weight: bold;
+    }
+    
+    .xmark {
+      color: #dc3545;
+      font-weight: bold;
+    }
+    
+    .stage-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 30px 0 20px 0;
+      text-align: center;
+    }
+    
+    .stage-header h2 {
+      margin: 0;
+    }
+    
+    .completion-message {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 8px;
+      text-align: center;
+      margin-top: 30px;
+      display: none;
+    }
+    
+    .completion-message h2 {
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="text-align: center; color: #2c3e50;">First-Order Logic: Truth in a Model</h1>
+  
+  <div class="model-box">
+    <h2>Model</h2>
+    <p><strong>Domain:</strong> {alice, bob, charlie, daisy}</p>
+    <p><strong>W</strong> (writer): {alice, bob}</p>
+    <p><strong>S</strong> (spy): {alice, charlie}</p>
+    <p><strong>H</strong> (got headache): {bob, charlie, daisy}</p>
+    <p class="name-key">a: alice, b: bob, c: charlie, d: daisy</p>
+  </div>
+
+  <div class="stage-header">
+    <h2>Stage 0: No Quantifiers (Foundation)</h2>
+    <p>Practice checking truth values in the model</p>
+  </div>
+
+  <div id="problems-container"></div>
+  
+  <div id="completion" class="completion-message">
+    <h2>🎉 Worksheet Complete!</h2>
+    <p>Great work! You can now screenshot this page and submit it for participation credit.</p>
+  </div>
+
+  <script>
+    const model = {
+      W: ['alice', 'bob'],
+      S: ['alice', 'charlie'],
+      H: ['bob', 'charlie', 'daisy']
+    };
+    
+    const nameMap = { 'a': 'alice', 'b': 'bob', 'c': 'charlie', 'd': 'daisy' };
+    const reverseNameMap = { 'alice': 'a', 'bob': 'b', 'charlie': 'c', 'daisy': 'd' };
+    
+    const problems = [
+      // Stage 0 problems
+      {
+        stage: 0,
+        number: 1,
+        formula: "Wa",
+        english: "alice is a writer",
+        correctAnswer: true,
+        checkFormula: (person) => model.W.includes('alice')
+      },
+      {
+        stage: 0,
+        number: 2,
+        formula: "Sb",
+        english: "bob is a spy",
+        correctAnswer: false,
+        checkFormula: (person) => model.S.includes('bob')
+      },
+      {
+        stage: 0,
+        number: 3,
+        formula: "Wa ∧ Sa",
+        english: "alice is a writer and alice is a spy",
+        correctAnswer: true,
+        checkFormula: (person) => model.W.includes('alice') && model.S.includes('alice')
+      },
+      {
+        stage: 0,
+        number: 4,
+        formula: "Wb ∧ Sb",
+        english: "bob is a writer and bob is a spy",
+        correctAnswer: false,
+        checkFormula: (person) => model.W.includes('bob') && model.S.includes('bob')
+      },
+      {
+        stage: 0,
+        number: 5,
+        formula: "Wa → Sa",
+        english: "if alice is a writer, then alice is a spy",
+        correctAnswer: true,
+        checkFormula: (person) => !model.W.includes('alice') || model.S.includes('alice')
+      },
+      {
+        stage: 0,
+        number: 6,
+        formula: "Wb → Sb",
+        english: "if bob is a writer, then bob is a spy",
+        correctAnswer: false,
+        checkFormula: (person) => !model.W.includes('bob') || model.S.includes('bob')
+      },
+      {
+        stage: 0,
+        number: 7,
+        formula: "Wc → Sc",
+        english: "if charlie is a writer, then charlie is a spy",
+        correctAnswer: true,
+        checkFormula: (person) => !model.W.includes('charlie') || model.S.includes('charlie')
+      },
+      // Stage 1 problems
+      {
+        stage: 1,
+        number: 8,
+        formula: "∃xWx",
+        english: "There is a writer",
+        correctAnswer: true,
+        type: 'existential',
+        predicates: ['W'],
+        checkWitness: (person) => model.W.includes(person)
+      },
+      {
+        stage: 1,
+        number: 9,
+        formula: "∃x(Wx ∧ Sx)",
+        english: "There is a writer who is a spy",
+        correctAnswer: true,
+        type: 'existential',
+        predicates: ['W', 'S'],
+        checkWitness: (person) => model.W.includes(person) && model.S.includes(person)
+      },
+      {
+        stage: 1,
+        number: 10,
+        formula: "∃x(Wx ∧ Hx)",
+        english: "There is a writer who got a headache",
+        correctAnswer: true,
+        type: 'existential',
+        predicates: ['W', 'H'],
+        checkWitness: (person) => model.W.includes(person) && model.H.includes(person)
+      },
+      {
+        stage: 1,
+        number: 11,
+        formula: "∃x(Wx ∧ Sx ∧ Hx)",
+        english: "There is a writer who is a spy and got a headache",
+        correctAnswer: false,
+        type: 'existential',
+        predicates: ['W', 'S', 'H'],
+        checkWitness: (person) => model.W.includes(person) && model.S.includes(person) && model.H.includes(person)
+      },
+      // Stage 2 problems - Universal Quantifiers
+      {
+        stage: 2,
+        number: 12,
+        formula: "∀xWx",
+        english: "Everyone is a writer",
+        correctAnswer: false,
+        type: 'universal',
+        predicates: ['W'],
+        checkCounterexample: (person) => !model.W.includes(person)
+      },
+      {
+        stage: 2,
+        number: 13,
+        formula: "∀x(Wx → Sx)",
+        english: "Every writer is a spy",
+        correctAnswer: false,
+        type: 'universal',
+        predicates: ['W', 'S'],
+        isImplication: true,
+        checkCounterexample: (person) => model.W.includes(person) && !model.S.includes(person)
+      },
+      {
+        stage: 2,
+        number: 14,
+        formula: "∀x(Sx → Wx)",
+        english: "Every spy is a writer",
+        correctAnswer: false,
+        type: 'universal',
+        predicates: ['S', 'W'],
+        isImplication: true,
+        checkCounterexample: (person) => model.S.includes(person) && !model.W.includes(person)
+      },
+      {
+        stage: 2,
+        number: 15,
+        formula: "∀x(Hx → (Wx ∨ Sx))",
+        english: "Everyone who got a headache is a writer or spy",
+        correctAnswer: false,
+        type: 'universal',
+        predicates: ['H', 'W', 'S'],
+        isImplication: true,
+        isDisjunction: true,
+        checkCounterexample: (person) => model.H.includes(person) && !model.W.includes(person) && !model.S.includes(person)
+      },
+      // Stage 3 problems - Both Quantifiers
+      {
+        stage: 3,
+        number: 16,
+        formula: "∃xWx ∧ ∃xSx",
+        english: "There is a writer and there is a spy",
+        correctAnswer: true,
+        type: 'stage3-simple',
+        explanation: "This is true because there exists at least one writer (alice or bob) AND there exists at least one spy (alice or charlie). These don't have to be the same person!"
+      },
+      {
+        stage: 3,
+        number: 17,
+        formula: "∃x(Wx ∧ Sx)",
+        english: "There is someone who is both a writer and spy",
+        correctAnswer: true,
+        type: 'existential',
+        predicates: ['W', 'S'],
+        checkWitness: (person) => model.W.includes(person) && model.S.includes(person),
+        compareNote: "Compare with #16: This requires ONE person to be BOTH. #16 just requires that writers exist and spies exist (possibly different people)."
+      },
+      {
+        stage: 3,
+        number: 18,
+        formula: "∀xWx ∨ ∀xSx",
+        english: "Everyone is a writer, or everyone is a spy",
+        correctAnswer: false,
+        type: 'stage3-simple',
+        explanation: "This is false because it's not the case that everyone is a writer (charlie and daisy aren't), and it's not the case that everyone is a spy (bob and daisy aren't)."
+      },
+      {
+        stage: 3,
+        number: 19,
+        formula: "∀x(Wx ∨ Sx)",
+        english: "Everyone is a writer or a spy",
+        correctAnswer: false,
+        type: 'universal',
+        predicates: ['W', 'S'],
+        isDisjunction: true,
+        checkCounterexample: (person) => !model.W.includes(person) && !model.S.includes(person),
+        compareNote: "Compare with #18: This requires EACH person to be at least one. #18 requires that EITHER everyone is W OR everyone is S."
+      }
+    ];
+    
+    let currentStage = 0;
+    let completedProblems = 0;
+    
+    function renderProblems() {
+      const container = document.getElementById('problems-container');
+      container.innerHTML = '';
+      
+      problems.forEach((problem, index) => {
+        // Add stage header when stage changes
+        if (index > 0 && problem.stage !== problems[index - 1].stage) {
+          const stageHeader = document.createElement('div');
+          stageHeader.className = 'stage-header';
+          if (problem.stage === 1) {
+            stageHeader.innerHTML = `
+              <h2>Stage 1: Existential Quantifiers</h2>
+              <p>Find witnesses to make existential claims true</p>
+            `;
+          } else if (problem.stage === 2) {
+            stageHeader.innerHTML = `
+              <h2>Stage 2: Universal Quantifiers</h2>
+              <p>Check if statements hold for everyone, or find counterexamples</p>
+            `;
+          } else if (problem.stage === 3) {
+            stageHeader.innerHTML = `
+              <h2>Stage 3: Both Quantifiers</h2>
+              <p>Pay attention to scope - where do the quantifiers apply?</p>
+            `;
+          }
+          container.appendChild(stageHeader);
+        }
+        
+        const problemDiv = document.createElement('div');
+        problemDiv.className = 'problem';
+        problemDiv.id = `problem-${problem.number}`;
+        
+        let html = `
+          <div class="problem-header">
+            <div class="problem-number">Problem ${problem.number}</div>
+            <div class="formula">${problem.formula}</div>
+            <div class="english">"${problem.english}"</div>
+          </div>
+        `;
+        
+        if (problem.stage === 0) {
+          html += `
+            <div class="instructions">Is this sentence true or false in the model? Check the model above.</div>
+            <div class="tf-buttons">
+              <button onclick="checkStage0(${index}, true)">TRUE</button>
+              <button onclick="checkStage0(${index}, false)">FALSE</button>
+            </div>
+            <div id="feedback-${problem.number}"></div>
+          `;
+        } else if (problem.type === 'existential') {
+          html += `
+            <div class="instructions">Is this sentence true or false in the model?</div>
+            <div class="tf-buttons">
+              <button onclick="selectTF(${index}, true)">TRUE</button>
+              <button onclick="selectTF(${index}, false)">FALSE</button>
+            </div>
+            <div id="witness-section-${problem.number}"></div>
+            <div id="feedback-${problem.number}"></div>
+          `;
+          if (problem.compareNote) {
+            html += `<div style="background: #e3f2fd; padding: 12px; margin-top: 15px; border-radius: 4px; border-left: 4px solid #2196f3;"><strong>💡 Think about it:</strong> ${problem.compareNote}</div>`;
+          }
+        } else if (problem.type === 'universal') {
+          html += `
+            <div class="instructions">Is this sentence true or false in the model?</div>
+            <div class="tf-buttons">
+              <button onclick="selectTFUniversal(${index}, true)">TRUE</button>
+              <button onclick="selectTFUniversal(${index}, false)">FALSE</button>
+            </div>
+            <div id="counterexample-section-${problem.number}"></div>
+            <div id="feedback-${problem.number}"></div>
+          `;
+          if (problem.compareNote) {
+            html += `<div style="background: #e3f2fd; padding: 12px; margin-top: 15px; border-radius: 4px; border-left: 4px solid #2196f3;"><strong>💡 Think about it:</strong> ${problem.compareNote}</div>`;
+          }
+        } else if (problem.type === 'stage3-simple') {
+          html += `
+            <div class="instructions">Is this sentence true or false in the model?</div>
+            <div class="tf-buttons">
+              <button onclick="checkStage3Simple(${index}, true)">TRUE</button>
+              <button onclick="checkStage3Simple(${index}, false)">FALSE</button>
+            </div>
+            <div id="feedback-${problem.number}"></div>
+          `;
+        }
+        
+        problemDiv.innerHTML = html;
+        container.appendChild(problemDiv);
+      });
+    }
+    
+    function checkStage0(index, answer) {
+      const problem = problems[index];
+      const feedbackDiv = document.getElementById(`feedback-${problem.number}`);
+      const buttons = document.querySelectorAll(`#problem-${problem.number} .tf-buttons button`);
+      
+      // Update button styling
+      buttons[0].className = answer === true ? 'selected-true' : '';
+      buttons[1].className = answer === false ? 'selected-false' : '';
+      
+      const isCorrect = answer === problem.correctAnswer;
+      
+      let feedback = `<div class="feedback ${isCorrect ? 'correct' : 'incorrect'}">`;
+      
+      if (problem.formula.includes('∧')) {
+        // Conjunction
+        const parts = problem.formula.split(' ∧ ');
+        const pred1 = parts[0].charAt(0);
+        const pred2 = parts[1].charAt(0);
+        const name1 = nameMap[parts[0].charAt(1)];
+        const name2 = nameMap[parts[1].charAt(1)];
+        const val1 = model[pred1].includes(name1);
+        const val2 = model[pred2].includes(name2);
+        
+        feedback += `<h4>Checking:</h4>`;
+        feedback += `<div class="verification-line">${parts[0]} = ${val1 ? 'TRUE' : 'FALSE'} ${val1 ? '<span class="checkmark">✓</span>' : '<span class="xmark">✗</span>'}</div>`;
+        feedback += `<div class="verification-line">${parts[1]} = ${val2 ? 'TRUE' : 'FALSE'} ${val2 ? '<span class="checkmark">✓</span>' : '<span class="xmark">✗</span>'}</div>`;
+        feedback += `<div class="verification-line">${problem.formula} = ${val1} ∧ ${val2} = ${val1 && val2 ? 'TRUE' : 'FALSE'}</div>`;
+      } else if (problem.formula.includes('→')) {
+        // Implication
+        const parts = problem.formula.split(' → ');
+        const pred1 = parts[0].charAt(0);
+        const pred2 = parts[1].charAt(0);
+        const name1 = nameMap[parts[0].charAt(1)];
+        const name2 = nameMap[parts[1].charAt(1)];
+        const val1 = model[pred1].includes(name1);
+        const val2 = model[pred2].includes(name2);
+        const result = !val1 || val2;
+        
+        feedback += `<h4>Checking:</h4>`;
+        feedback += `<div class="verification-line">${parts[0]} = ${val1 ? 'TRUE' : 'FALSE'} ${val1 ? '<span class="checkmark">✓</span>' : '<span class="xmark">✗</span>'}</div>`;
+        feedback += `<div class="verification-line">${parts[1]} = ${val2 ? 'TRUE' : 'FALSE'} ${val2 ? '<span class="checkmark">✓</span>' : '<span class="xmark">✗</span>'}</div>`;
+        feedback += `<div class="verification-line">${problem.formula} = ${val1} → ${val2} = ${result ? 'TRUE' : 'FALSE'}</div>`;
+        if (!val1) {
+          feedback += `<p><em>Note: When the antecedent is FALSE, the implication is vacuously TRUE.</em></p>`;
+        }
+      } else {
+        // Simple predicate
+        const pred = problem.formula.charAt(0);
+        const name = nameMap[problem.formula.charAt(1)];
+        const val = model[pred].includes(name);
+        
+        feedback += `<h4>Checking:</h4>`;
+        feedback += `<div class="verification-line">${problem.formula} = ${val ? 'TRUE' : 'FALSE'} ${val ? '<span class="checkmark">✓</span>' : '<span class="xmark">✗</span>'}</div>`;
+      }
+      
+      if (isCorrect) {
+        feedback += `<p style="margin-top: 15px; font-weight: bold;">✓ Correct!</p>`;
+      } else {
+        feedback += `<p style="margin-top: 15px; font-weight: bold;">✗ Not quite. Try again!</p>`;
+      }
+      
+      feedback += `</div>`;
+      feedbackDiv.innerHTML = feedback;
+      
+      if (isCorrect) {
+        completedProblems++;
+        checkCompletion();
+      }
+    }
+    
+    function selectTF(index, answer) {
+      const problem = problems[index];
+      const witnessSection = document.getElementById(`witness-section-${problem.number}`);
+      const feedbackDiv = document.getElementById(`feedback-${problem.number}`);
+      const buttons = document.querySelectorAll(`#problem-${problem.number} .tf-buttons button`);
+      
+      // Update button styling
+      buttons[0].className = answer === true ? 'selected-true' : '';
+      buttons[1].className = answer === false ? 'selected-false' : '';
+      
+      // Clear previous feedback
+      feedbackDiv.innerHTML = '';
+      
+      if (answer === true && problem.correctAnswer === true) {
+        // Correct - now ask for witness
+        witnessSection.innerHTML = `
+          <div class="witness-section">
+            <h4>Great! Now click on a person to show they are a witness:</h4>
+            <div>
+              <span class="person-button" onclick="checkWitness(${index}, 'alice')">alice</span>
+              <span class="person-button" onclick="checkWitness(${index}, 'bob')">bob</span>
+              <span class="person-button" onclick="checkWitness(${index}, 'charlie')">charlie</span>
+              <span class="person-button" onclick="checkWitness(${index}, 'daisy')">daisy</span>
+            </div>
+          </div>
+        `;
+      } else if (answer === false && problem.correctAnswer === false) {
+        // Correct answer for false existential
+        witnessSection.innerHTML = '';
+        let feedback = `<div class="feedback correct">`;
+        feedback += `<h4>✓ Correct! This sentence is FALSE.</h4>`;
+        feedback += `<p>Let's verify by checking each person:</p>`;
+        
+        ['alice', 'bob', 'charlie', 'daisy'].forEach(person => {
+          const letter = reverseNameMap[person];
+          feedback += `<div style="margin: 10px 0;">`;
+          feedback += `<strong>${person}:</strong><br>`;
+          problem.predicates.forEach(pred => {
+            const val = model[pred].includes(person);
+            feedback += `<div class="verification-line">${pred}${letter} = ${val ? 'TRUE' : 'FALSE'} ${val ? '<span class="checkmark">✓</span>' : '<span class="xmark">✗</span>'}</div>`;
+          });
+          const isWitness = problem.checkWitness(person);
+          feedback += `<div class="verification-line">Combined: ${isWitness ? 'TRUE' : 'FALSE'} ${isWitness ? '<span class="checkmark">✓</span>' : '<span class="xmark">✗</span>'}</div>`;
+          feedback += `</div>`;
+        });
+        feedback += `<p style="margin-top: 15px;"><strong>No one satisfies all the conditions, so ${problem.formula} is FALSE.</strong></p>`;
+        feedback += `</div>`;
+        feedbackDiv.innerHTML = feedback;
+        
+        completedProblems++;
+        checkCompletion();
+      } else {
+        // Wrong answer
+        witnessSection.innerHTML = '';
+        feedbackDiv.innerHTML = `
+          <div class="feedback incorrect">
+            <h4>✗ Not quite.</h4>
+            <p>Try the other option!</p>
+          </div>
+        `;
+      }
+    }
+    
+    function checkWitness(index, person) {
+      const problem = problems[index];
+      const feedbackDiv = document.getElementById(`feedback-${problem.number}`);
+      const witnessSection = document.getElementById(`witness-section-${problem.number}`);
+      
+      const isWitness = problem.checkWitness(person);
+      const letter = reverseNameMap[person];
+      
+      let feedback = `<div class="feedback ${isWitness ? 'correct' : 'incorrect'}">`;
+      feedback += `<h4>Checking ${person} as a witness:</h4>`;
+      
+      // Show each predicate check
+      problem.predicates.forEach(pred => {
+        const val = model[pred].includes(person);
+        feedback += `<div class="verification-line">${pred}${letter} = ${val ? 'TRUE' : 'FALSE'} ${val ? '<span class="checkmark">✓</span>' : '<span class="xmark">✗</span>'}</div>`;
+      });
+      
+      // Show combined result
+      if (problem.predicates.length === 2) {
+        const val1 = model[problem.predicates[0]].includes(person);
+        const val2 = model[problem.predicates[1]].includes(person);
+        feedback += `<div class="verification-line">${problem.predicates[0]}${letter} ∧ ${problem.predicates[1]}${letter} = ${val1} ∧ ${val2} = ${isWitness ? 'TRUE' : 'FALSE'}</div>`;
+      } else if (problem.predicates.length === 3) {
+        const val1 = model[problem.predicates[0]].includes(person);
+        const val2 = model[problem.predicates[1]].includes(person);
+        const val3 = model[problem.predicates[2]].includes(person);
+        feedback += `<div class="verification-line">${problem.predicates[0]}${letter} ∧ ${problem.predicates[1]}${letter} ∧ ${problem.predicates[2]}${letter} = ${val1} ∧ ${val2} ∧ ${val3} = ${isWitness ? 'TRUE' : 'FALSE'}</div>`;
+      }
+      
+      if (isWitness) {
+        feedback += `<p style="margin-top: 15px; font-weight: bold;">✓ Correct! ${person} is a witness.</p>`;
+        feedback += `<p>Therefore ${problem.formula} is TRUE.</p>`;
+        witnessSection.innerHTML = ''; // Hide witness buttons after correct answer
+        
+        completedProblems++;
+        checkCompletion();
+      } else {
+        feedback += `<p style="margin-top: 15px; font-weight: bold;">✗ ${person} is not a witness. Try again!</p>`;
+      }
+      
+      feedback += `</div>`;
+      feedbackDiv.innerHTML = feedback;
+    }
+    
+    function checkCompletion() {
+      if (completedProblems === problems.length) {
+        document.getElementById('completion').style.display = 'block';
+      }
+    }
+    
+    function selectTFUniversal(index, answer) {
+      const problem = problems[index];
+      const counterexampleSection = document.getElementById(`counterexample-section-${problem.number}`);
+      const feedbackDiv = document.getElementById(`feedback-${problem.number}`);
+      const buttons = document.querySelectorAll(`#problem-${problem.number} .tf-buttons button`);
+      
+      // Update button styling
+      buttons[0].className = answer === true ? 'selected-true' : '';
+      buttons[1].className = answer === false ? 'selected-false' : '';
+      
+      // Clear previous feedback
+      feedbackDiv.innerHTML = '';
+      
+      if (answer === false && problem.correctAnswer === false) {
+        // Correct - now ask for counterexample
+        counterexampleSection.innerHTML = `
+          <div class="witness-section">
+            <h4>Great! Now click on a person who is a counterexample:</h4>
+            <div>
+              <span class="person-button" onclick="checkCounterexample(${index}, 'alice')">alice</span>
+              <span class="person-button" onclick="checkCounterexample(${index}, 'bob')">bob</span>
+              <span class="person-button" onclick="checkCounterexample(${index}, 'charlie')">charlie</span>
+              <span class="person-button" onclick="checkCounterexample(${index}, 'daisy')">daisy</span>
+            </div>
+          </div>
+        `;
+      } else if (answer === true && problem.correctAnswer === true) {
+        // Correct answer for true universal
+        counterexampleSection.innerHTML = '';
+        let feedback = `<div class="feedback correct">`;
+        feedback += `<h4>✓ Correct! This sentence is TRUE.</h4>`;
+        feedback += `<p>Let's verify by checking each person:</p>`;
+        
+        ['alice', 'bob', 'charlie', 'daisy'].forEach(person => {
+          const letter = reverseNameMap[person];
+          feedback += `<div style="margin: 10px 0;">`;
+          feedback += `<strong>${person}:</strong><br>`;
+          
+          if (problem.isImplication) {
+            const antecedentPred = problem.predicates[0];
+            const consequentPred = problem.predicates[1];
+            const antecedentVal = model[antecedentPred].includes(person);
+            const consequentVal = problem.isDisjunction 
+              ? (model[problem.predicates[1]].includes(person) || model[problem.predicates[2]].includes(person))
+              : model[consequentPred].includes(person);
+            const implResult = !antecedentVal || consequentVal;
+            
+            feedback += `<div class="verification-line">${antecedentPred}${letter} = ${antecedentVal ? 'TRUE' : 'FALSE'}</div>`;
+            if (problem.isDisjunction) {
+              feedback += `<div class="verification-line">${problem.predicates[1]}${letter} ∨ ${problem.predicates[2]}${letter} = ${consequentVal ? 'TRUE' : 'FALSE'}</div>`;
+            } else {
+              feedback += `<div class="verification-line">${consequentPred}${letter} = ${consequentVal ? 'TRUE' : 'FALSE'}</div>`;
+            }
+            feedback += `<div class="verification-line">${antecedentPred}${letter} → ... = ${antecedentVal} → ${consequentVal} = ${implResult ? 'TRUE' : 'FALSE'} ${implResult ? '<span class="checkmark">✓</span>' : '<span class="xmark">✗</span>'}</div>`;
+          } else {
+            problem.predicates.forEach(pred => {
+              const val = model[pred].includes(person);
+              feedback += `<div class="verification-line">${pred}${letter} = ${val ? 'TRUE' : 'FALSE'} ${val ? '<span class="checkmark">✓</span>' : '<span class="xmark">✗</span>'}</div>`;
+            });
+          }
+          feedback += `</div>`;
+        });
+        feedback += `<p style="margin-top: 15px;"><strong>Everyone satisfies the condition, so ${problem.formula} is TRUE.</strong></p>`;
+        feedback += `</div>`;
+        feedbackDiv.innerHTML = feedback;
+        
+        completedProblems++;
+        checkCompletion();
+      } else {
+        // Wrong answer
+        counterexampleSection.innerHTML = '';
+        feedbackDiv.innerHTML = `
+          <div class="feedback incorrect">
+            <h4>✗ Not quite.</h4>
+            <p>Try the other option!</p>
+          </div>
+        `;
+      }
+    }
+    
+    function checkCounterexample(index, person) {
+      const problem = problems[index];
+      const feedbackDiv = document.getElementById(`feedback-${problem.number}`);
+      const counterexampleSection = document.getElementById(`counterexample-section-${problem.number}`);
+      
+      const isCounterexample = problem.checkCounterexample(person);
+      const letter = reverseNameMap[person];
+      
+      let feedback = `<div class="feedback ${isCounterexample ? 'correct' : 'incorrect'}">`;
+      feedback += `<h4>Checking ${person} as a counterexample:</h4>`;
+      
+      if (problem.isImplication) {
+        const antecedentPred = problem.predicates[0];
+        const antecedentVal = model[antecedentPred].includes(person);
+        
+        feedback += `<div class="verification-line">${antecedentPred}${letter} = ${antecedentVal ? 'TRUE' : 'FALSE'} ${antecedentVal ? '<span class="checkmark">✓</span>' : '<span class="xmark">✗</span>'}</div>`;
+        
+        if (problem.isDisjunction) {
+          // For disjunction in consequent
+          const val1 = model[problem.predicates[1]].includes(person);
+          const val2 = model[problem.predicates[2]].includes(person);
+          const disjVal = val1 || val2;
+          feedback += `<div class="verification-line">${problem.predicates[1]}${letter} = ${val1 ? 'TRUE' : 'FALSE'} ${val1 ? '<span class="checkmark">✓</span>' : '<span class="xmark">✗</span>'}</div>`;
+          feedback += `<div class="verification-line">${problem.predicates[2]}${letter} = ${val2 ? 'TRUE' : 'FALSE'} ${val2 ? '<span class="checkmark">✓</span>' : '<span class="xmark">✗</span>'}</div>`;
+          feedback += `<div class="verification-line">${problem.predicates[1]}${letter} ∨ ${problem.predicates[2]}${letter} = ${val1} ∨ ${val2} = ${disjVal ? 'TRUE' : 'FALSE'}</div>`;
+          const implResult = !antecedentVal || disjVal;
+          feedback += `<div class="verification-line">${antecedentPred}${letter} → (${problem.predicates[1]}${letter} ∨ ${problem.predicates[2]}${letter}) = ${antecedentVal} → ${disjVal} = ${implResult ? 'TRUE' : 'FALSE'}</div>`;
+        } else {
+          const consequentPred = problem.predicates[1];
+          const consequentVal = model[consequentPred].includes(person);
+          feedback += `<div class="verification-line">${consequentPred}${letter} = ${consequentVal ? 'TRUE' : 'FALSE'} ${consequentVal ? '<span class="checkmark">✓</span>' : '<span class="xmark">✗</span>'}</div>`;
+          const implResult = !antecedentVal || consequentVal;
+          feedback += `<div class="verification-line">${antecedentPred}${letter} → ${consequentPred}${letter} = ${antecedentVal} → ${consequentVal} = ${implResult ? 'TRUE' : 'FALSE'}</div>`;
+        }
+        
+        if (!antecedentVal) {
+          feedback += `<p><em>Note: When the antecedent is FALSE, the implication is vacuously TRUE, so this is not a counterexample.</em></p>`;
+        }
+      } else if (problem.isDisjunction) {
+        // Simple disjunction (not in an implication)
+        problem.predicates.forEach(pred => {
+          const val = model[pred].includes(person);
+          feedback += `<div class="verification-line">${pred}${letter} = ${val ? 'TRUE' : 'FALSE'} ${val ? '<span class="checkmark">✓</span>' : '<span class="xmark">✗</span>'}</div>`;
+        });
+        const val1 = model[problem.predicates[0]].includes(person);
+        const val2 = model[problem.predicates[1]].includes(person);
+        feedback += `<div class="verification-line">${problem.predicates[0]}${letter} ∨ ${problem.predicates[1]}${letter} = ${val1} ∨ ${val2} = ${val1 || val2 ? 'TRUE' : 'FALSE'}</div>`;
+      } else {
+        // Simple universal
+        problem.predicates.forEach(pred => {
+          const val = model[pred].includes(person);
+          feedback += `<div class="verification-line">${pred}${letter} = ${val ? 'TRUE' : 'FALSE'} ${val ? '<span class="checkmark">✓</span>' : '<span class="xmark">✗</span>'}</div>`;
+        });
+      }
+      
+      if (isCounterexample) {
+        feedback += `<p style="margin-top: 15px; font-weight: bold;">✓ Correct! ${person} is a counterexample.</p>`;
+        feedback += `<p>Therefore ${problem.formula} is FALSE.</p>`;
+        counterexampleSection.innerHTML = ''; // Hide counterexample buttons after correct answer
+        
+        completedProblems++;
+        checkCompletion();
+      } else {
+        feedback += `<p style="margin-top: 15px; font-weight: bold;">✗ ${person} is not a counterexample. Try again!</p>`;
+      }
+      
+      feedback += `</div>`;
+      feedbackDiv.innerHTML = feedback;
+    }
+    
+    function checkStage3Simple(index, answer) {
+      const problem = problems[index];
+      const feedbackDiv = document.getElementById(`feedback-${problem.number}`);
+      const buttons = document.querySelectorAll(`#problem-${problem.number} .tf-buttons button`);
+      
+      // Update button styling
+      buttons[0].className = answer === true ? 'selected-true' : '';
+      buttons[1].className = answer === false ? 'selected-false' : '';
+      
+      const isCorrect = answer === problem.correctAnswer;
+      
+      let feedback = `<div class="feedback ${isCorrect ? 'correct' : 'incorrect'}">`;
+      
+      if (isCorrect) {
+        feedback += `<h4>✓ Correct!</h4>`;
+        feedback += `<p>${problem.explanation}</p>`;
+        
+        completedProblems++;
+        checkCompletion();
+      } else {
+        feedback += `<h4>✗ Not quite.</h4>`;
+        feedback += `<p>Think carefully about what the formula requires. Try the other option!</p>`;
+      }
+      
+      feedback += `</div>`;
+      feedbackDiv.innerHTML = feedback;
+    }
+    
+    // Initialize
+    renderProblems();
+  </script>
+</body>
+</html>
