@@ -114,14 +114,9 @@ function applySubstitutions(template, subs) {
     }
   });
   
-  // Replace constants (a, b, c, d, e)
-  Object.keys(subs).forEach(key => {
-    if (key.match(/^[a-e]$/)) {
-      // Replace constant letters
-      const regex = new RegExp('\\(' + key + '\\)', 'g');
-      formula = formula.replace(regex, '(' + subs[key] + ')');
-    }
-  });
+  // DON'T replace constants in the formula!
+  // The formula should show "P(c)" not "P(bob)"
+  // The constant 'c' is defined in the model (e.g., "c: bob")
   
   return formula;
 }
