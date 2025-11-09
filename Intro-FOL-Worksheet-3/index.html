@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>First-Order Logic Worksheet 4: Nested Quantifiers</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    
+    .model-box {
+      background: white;
+      border: 2px solid #2c3e50;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+      position: sticky;
+      top: 10px;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .model-box h2 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+    
+    .model-box p {
+      margin: 8px 0;
+      font-size: 16px;
+    }
+    
+    .name-key {
+      color: #7f8c8d;
+      font-size: 14px;
+      font-style: italic;
+      margin-top: 12px;
+    }
+    
+    .diagram-container {
+      margin-top: 20px;
+      text-align: center;
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 6px;
+    }
+    
+    .diagram-container svg {
+      max-width: 100%;
+      height: auto;
+    }
+    
+    .problem {
+      background: white;
+      border-radius: 8px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .problem-header {
+      border-bottom: 2px solid #ecf0f1;
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .problem-number {
+      color: #3498db;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    
+    .formula {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 10px 0;
+      color: #2c3e50;
+    }
+    
+    .english {
+      color: #95a5a6;
+      font-style: italic;
+      font-size: 14px;
+      display: none;
+      margin-top: 8px;
+      clear: both;
+    }
+    
+    .english.show {
+      display: block;
+    }
+    
+    .english-toggle {
+      background: white;
+      color: #95a5a6;
+      border: 2px solid #95a5a6;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+      float: right;
+    }
+    
+    .english-toggle:hover {
+      background: #ecf0f1;
+      transform: translateY(-1px);
+    }
+    
+    .instructions {
+      background: #e8f4f8;
+      border-left: 4px solid #3498db;
+      padding: 12px;
+      margin: 15px 0;
+      border-radius: 4px;
+      font-size: 15px;
+    }
+    
+    .hint-toggle {
+      background: white;
+      color: #95a5a6;
+      border: 2px solid #95a5a6;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+      float: right;
+      margin-left: 8px;
+    }
+    
+    .hint-toggle:hover {
+      background: #ecf0f1;
+      transform: translateY(-1px);
+    }
+    
+    .hint-content {
+      display: none;
+      background: #f9f9f9;
+      border-left: 3px solid #bdc3c7;
+      padding: 10px 12px;
+      margin: 10px 0;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #7f8c8d;
+      clear: both;
+    }
+    
+    .hint-content.show {
+      display: block;
+    }
+    
+    .tf-buttons {
+      margin: 20px 0;
+    }
+    
+    .tf-buttons button {
+      padding: 12px 30px;
+      margin-right: 15px;
+      font-size: 16px;
+      border: 2px solid #95a5a6;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .tf-buttons button:hover {
+      background: #ecf0f1;
+      transform: translateY(-2px);
+    }
+    
+    .tf-buttons button.selected-true {
+      background: #2ecc71;
+      color: white;
+      border-color: #27ae60;
+    }
+    
+    .tf-buttons button.selected-false {
+      background: #e74c3c;
+      color: white;
+      border-color: #c0392b;
+    }
+    
+    .witness-section {
+      margin-top: 20px;
+      padding: 20px;
+      background: #fef9e7;
+      border-radius: 6px;
+      border: 2px solid #f39c12;
+    }
+    
+    .witness-section h4 {
+      margin-top: 0;
+      color: #d68910;
+    }
+    
+    .person-button {
+      display: inline-block;
+      padding: 12px 24px;
+      margin: 8px;
+      border: 2px solid #95a5a6;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+    
+    .person-button:hover {
+      background: #ecf0f1;
+      transform: translateY(-2px);
+    }
+    
+    .person-button.selected-first {
+      background: #f39c12;
+      color: white;
+      border-color: #e67e22;
+    }
+    
+    .feedback {
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 6px;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    
+    .feedback.correct {
+      background: #d4edda;
+      border: 2px solid #28a745;
+      color: #155724;
+    }
+    
+    .feedback.incorrect {
+      background: #f8d7da;
+      border: 2px solid #dc3545;
+      color: #721c24;
+    }
+    
+    .feedback h4 {
+      margin-top: 0;
+    }
+    
+    .verification-line {
+      font-family: 'Courier New', monospace;
+      margin: 5px 0;
+      font-size: 15px;
+    }
+    
+    .checkmark {
+      color: #28a745;
+      font-weight: bold;
+    }
+    
+    .xmark {
+      color: #dc3545;
+      font-weight: bold;
+    }
+    
+    .stage-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 30px 0 20px 0;
+      text-align: center;
+    }
+    
+    .stage-header h2 {
+      margin: 0;
+    }
+    
+    .stage-completion {
+      background: #d4edda;
+      border: 2px solid #28a745;
+      color: #155724;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 20px;
+      font-weight: bold;
+      text-align: center;
+      display: none;
+    }
+    
+    .completion-message {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 8px;
+      text-align: center;
+      margin-top: 30px;
+      display: none;
+    }
+    
+    .completion-message h2 {
+      margin-top: 0;
+    }
+    
+    .score-display {
+      background: #e3f2fd;
+      border: 2px solid #2196f3;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 15px 0;
+      font-size: 16px;
+    }
+    
+    .new-model-button {
+      background: #9c27b0;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .new-model-button:hover {
+      background: #7b1fa2;
+      transform: scale(1.05);
+    }
+    
+    .attempt-badge {
+      display: inline-block;
+      background: #ffd54f;
+      color: #f57f17;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+    
+    .compare-note {
+      background: #e3f2fd;
+      padding: 12px;
+      margin-top: 15px;
+      border-radius: 4px;
+      border-left: 4px solid #2196f3;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="text-align: center; color: #2c3e50;">First-Order Logic: Nested Quantifiers (Worksheet 4)</h1>
+  
+  <div class="model-box">
+    <h2>Model</h2>
+    <p><strong>Domain:</strong> <span id="domain-display">{1, 2, 3}</span></p>
+    <p><strong>Names:</strong> a: <span id="a-display">1</span>, b: <span id="b-display">2</span></p>
+    <p><strong>R</strong> (binary relation): <span id="r-display"></span></p>
+    <div class="diagram-container">
+      <svg id="relation-diagram" width="300" height="300" style="border: 1px solid #ddd; background: white;"></svg>
+    </div>
+    <div style="margin-top: 15px; text-align: center;">
+      <button class="new-model-button" onclick="resetWithNewModel()">🔄 New Model (Erase All & Start Fresh)</button>
+    </div>
+  </div>
+
+  <div class="stage-header">
+    <h2>Stage 0: Existential Review</h2>
+    <p>Quick warm-up with existential quantifiers</p>
+  </div>
+
+  <div id="stage-0-completion" class="stage-completion"></div>
+  <div id="problems-container"></div>
+  
+  <div id="completion" class="completion-message">
+    <h2>🎉 Worksheet 4 Complete!</h2>
+    <div id="final-score" class="score-display"></div>
+    <button class="new-model-button" onclick="resetWithNewModel()">Try New Model</button>
+    <p style="margin-top: 20px;">You can now screenshot this page and submit it for participation credit.</p>
+  </div>
+
+  <script>
+    // Model state
+    let model = null;
+    let completionCount = 0;
+    
+    // Attempt tracking
+    const attemptTracker = {};
+    
+    // Domain and objects
+    const domain = [1, 2, 3];
+    
+    // Track completed problems per stage
+    let stageProgress = {
+      0: { completed: 0, total: 0 },
+      1: { completed: 0, total: 0 },
+      2: { completed: 0, total: 0 }
+    };
+    
+    let completedProblems = 0;
+    
+    // Two-step interaction state
+    let twoStepState = {
+      problemNumber: null,
+      firstObject: null
+    };
+    
+    // Generate random model
+    function generateRandomModel() {
+      const pairs = [];
+      
+      // Generate all possible ordered pairs (9 total: 3x3)
+      for (let i = 0; i < domain.length; i++) {
+        for (let j = 0; j < domain.length; j++) {
+          // Randomly include each pair with ~50% probability
+          if (Math.random() > 0.5) {
+            pairs.push([domain[i], domain[j]]);
+          }
+        }
+      }
+      
+      // Ensure at least 2 pairs exist
+      if (pairs.length < 2) {
+        pairs.push([1, 2]);
+        pairs.push([2, 3]);
+      }
+      
+      // Randomly assign names to objects
+      const shuffled = [...domain].sort(() => Math.random() - 0.5);
+      
+      return {
+        names: {
+          a: shuffled[0],
+          b: shuffled[1]
+        },
+        R: pairs
+      };
+    }
+    
+    // Helper functions
+    function inR(x, y, m) {
+      return m.R.some(pair => pair[0] === x && pair[1] === y);
+    }
+    
+    function getOutgoing(obj, m) {
+      return m.R.filter(pair => pair[0] === obj).map(pair => pair[1]);
+    }
+    
+    function getIncoming(obj, m) {
+      return m.R.filter(pair => pair[1] === obj).map(pair => pair[0]);
+    }
+    
+    // Display model
+    function displayModel() {
+      document.getElementById('domain-display').textContent = `{${domain.join(', ')}}`;
+      document.getElementById('a-display').textContent = model.names.a;
+      document.getElementById('b-display').textContent = model.names.b;
+      document.getElementById('r-display').textContent = 
+        model.R.length > 0 
+          ? `{${model.R.map(p => `⟨${p[0]},${p[1]}⟩`).join(', ')}}` 
+          : '{}';
+      
+      renderDiagram();
+    }
+    
+    // Render SVG diagram
+    function renderDiagram() {
+      const svg = document.getElementById('relation-diagram');
+      svg.innerHTML = '';
+      
+      const width = 300, height = 300;
+      const centerX = width / 2, centerY = height / 2;
+      const radius = 80;
+      
+      // Calculate positions for 3 nodes in triangle
+      const positions = {
+        1: { x: centerX, y: centerY - radius },
+        2: { x: centerX - radius * Math.cos(Math.PI / 6), y: centerY + radius * Math.sin(Math.PI / 6) },
+        3: { x: centerX + radius * Math.cos(Math.PI / 6), y: centerY + radius * Math.sin(Math.PI / 6) }
+      };
+      
+      // Draw arrows (from all pairs except self-loops)
+      for (const [from, to] of model.R) {
+        if (from !== to) {
+          drawArrow(svg, positions[from], positions[to], from, to);
+        }
+      }
+      
+      // Draw self-loops
+      for (const obj of domain) {
+        if (model.R.some(pair => pair[0] === obj && pair[1] === obj)) {
+          drawSelfLoop(svg, positions[obj], obj);
+        }
+      }
+      
+      // Draw nodes
+      for (const obj of domain) {
+        const pos = positions[obj];
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', pos.x);
+        circle.setAttribute('cy', pos.y);
+        circle.setAttribute('r', 20);
+        circle.setAttribute('fill', '#3498db');
+        circle.setAttribute('stroke', '#2c3e50');
+        circle.setAttribute('stroke-width', 2);
+        circle.style.cursor = 'pointer';
+        svg.appendChild(circle);
+        
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', pos.x);
+        text.setAttribute('y', pos.y + 7);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('font-size', 18);
+        text.setAttribute('font-weight', 'bold');
+        text.setAttribute('fill', 'white');
+        text.textContent = obj;
+        svg.appendChild(text);
+        
+        // Add name labels (a, b) below the circles
+        let nameLabel = '';
+        if (model.names.a === obj) nameLabel = 'a';
+        if (model.names.b === obj) nameLabel += (nameLabel ? ', b' : 'b');
+        
+        if (nameLabel) {
+          const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          nameText.setAttribute('x', pos.x);
+          nameText.setAttribute('y', pos.y + 38); // Below the circle
+          nameText.setAttribute('text-anchor', 'middle');
+          nameText.setAttribute('font-size', 14);
+          nameText.setAttribute('font-style', 'italic');
+          nameText.setAttribute('fill', '#7f8c8d');
+          nameText.textContent = `(${nameLabel})`;
+          svg.appendChild(nameText);
+        }
+      }
+    }
+    
+    function drawArrow(svg, fromPos, toPos, from, to) {
+      // Calculate direction vector
+      const dx = toPos.x - fromPos.x;
+      const dy = toPos.y - fromPos.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      // Shorten arrow to not overlap with node circles
+      const nodeRadius = 20;
+      const startX = fromPos.x + (dx / distance) * nodeRadius;
+      const startY = fromPos.y + (dy / distance) * nodeRadius;
+      const endX = toPos.x - (dx / distance) * nodeRadius;
+      const endY = toPos.y - (dy / distance) * nodeRadius;
+      
+      // Draw line
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', startX);
+      line.setAttribute('y1', startY);
+      line.setAttribute('x2', endX);
+      line.setAttribute('y2', endY);
+      line.setAttribute('stroke', '#2c3e50');
+      line.setAttribute('stroke-width', 2);
+      svg.appendChild(line);
+      
+      // Draw arrowhead
+      const angle = Math.atan2(dy, dx);
+      const arrowSize = 10;
+      const arrowPoints = [
+        [endX, endY],
+        [endX - arrowSize * Math.cos(angle - Math.PI / 6), endY - arrowSize * Math.sin(angle - Math.PI / 6)],
+        [endX - arrowSize * Math.cos(angle + Math.PI / 6), endY - arrowSize * Math.sin(angle + Math.PI / 6)]
+      ];
+      
+      const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      polygon.setAttribute('points', arrowPoints.map(p => `${p[0]},${p[1]}`).join(' '));
+      polygon.setAttribute('fill', '#2c3e50');
+      svg.appendChild(polygon);
+    }
+    
+    function drawSelfLoop(svg, pos, obj) {
+      // Calculate the angle pointing away from center (outward from triangle)
+      const centerX = 300 / 2;
+      const centerY = 300 / 2;
+      const toCenterX = centerX - pos.x;
+      const toCenterY = centerY - pos.y;
+      const angleFromCenter = Math.atan2(toCenterY, toCenterX);
+      const outwardAngle = angleFromCenter + Math.PI; // Opposite direction (away from center)
+      
+      const nodeRadius = 20;
+      const loopRadius = 25; // Larger loop for smooth circular arc
+      const offsetAngle = Math.PI / 4; // 45 degree spread
+      
+      // Both start and end points are just outside the node circle
+      const startDistance = nodeRadius + 2; // Just outside node
+      const endDistance = nodeRadius + 2;
+      
+      const startAngle = outwardAngle - offsetAngle;
+      const endAngle = outwardAngle + offsetAngle;
+      
+      const startX = pos.x + startDistance * Math.cos(startAngle);
+      const startY = pos.y + startDistance * Math.sin(startAngle);
+      const endX = pos.x + endDistance * Math.cos(endAngle);
+      const endY = pos.y + endDistance * Math.sin(endAngle);
+      
+      // Draw arc (self-loop) - large-arc-flag 1 for the longer arc, sweep-flag 1 for clockwise
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const pathData = `M ${startX} ${startY} A ${loopRadius} ${loopRadius} 0 1 1 ${endX} ${endY}`;
+      path.setAttribute('d', pathData);
+      path.setAttribute('stroke', '#2c3e50');
+      path.setAttribute('stroke-width', 2);
+      path.setAttribute('fill', 'none');
+      svg.appendChild(path);
+      
+      // Draw arrowhead at end
+      // The arrow should point tangent to the arc, which for a circle is perpendicular to the radius
+      // At endAngle position, the tangent for clockwise motion is endAngle + PI/2
+      const arrowAngle = endAngle + Math.PI / 2;
+      const arrowSize = 10;
+      const arrowPoints = [
+        [endX, endY],
+        [endX - arrowSize * Math.cos(arrowAngle - Math.PI / 6), endY - arrowSize * Math.sin(arrowAngle - Math.PI / 6)],
+        [endX - arrowSize * Math.cos(arrowAngle + Math.PI / 6), endY - arrowSize * Math.sin(arrowAngle + Math.PI / 6)]
+      ];
+      
+      const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      polygon.setAttribute('points', arrowPoints.map(p => `${p[0]},${p[1]}`).join(' '));
+      polygon.setAttribute('fill', '#2c3e50');
+      svg.appendChild(polygon);
+    }
+    
+    // Problem definitions
+    const problems = [
+      // Stage 0: Existential Review (2 problems)
+      {
+        stage: 0,
+        number: 1,
+        formula: "∃xRxb",
+        english: "Something is R-related to b",
+        type: 'existential',
+        checkAnswer: (m) => domain.some(x => inR(x, m.names.b, m)),
+        checkWitness: (person, m) => inR(person, m.names.b, m),
+        explanation: "Is there any arrow **into** b?"
+      },
+      {
+        stage: 0,
+        number: 2,
+        formula: "∃xRxx",
+        english: "Something is R-related to itself",
+        type: 'existential',
+        checkAnswer: (m) => domain.some(x => inR(x, x, m)),
+        checkWitness: (person, m) => inR(person, person, m),
+        explanation: "Find an object with a **self-loop**"
+      },
+      
+      // Stage 1: Universal Review (2 problems)
+      {
+        stage: 1,
+        number: 3,
+        formula: "∀xRxa",
+        english: "Everything is R-related to a",
+        type: 'universal',
+        checkAnswer: (m) => domain.every(x => inR(x, m.names.a, m)),
+        checkCounterexample: (person, m) => !inR(person, m.names.a, m),
+        explanation: "Does EVERY object have an arrow **to** a?"
+      },
+      {
+        stage: 1,
+        number: 4,
+        formula: "∀xRxx",
+        english: "Everything is R-related to itself",
+        type: 'universal',
+        checkAnswer: (m) => domain.every(x => inR(x, x, m)),
+        checkCounterexample: (person, m) => !inR(person, person, m),
+        explanation: "Does EVERY object have a **self-loop**?"
+      },
+      
+      // Stage 2: Nested Quantifiers (10 problems)
+      {
+        stage: 2,
+        number: 5,
+        formula: "∀x∃yRxy",
+        english: "Everything has an outgoing R-arrow",
+        type: 'nested-universal-existential',
+        checkAnswer: (m) => domain.every(x => domain.some(y => inR(x, y, m))),
+        checkCounterexample: (person, m) => getOutgoing(person, m).length === 0,
+        explanation: "Does EVERY object have at least ONE arrow out?"
+      },
+      {
+        stage: 2,
+        number: 6,
+        formula: "∃x∀yRxy",
+        english: "Something has outgoing R-arrows to everything",
+        type: 'nested-existential-universal',
+        checkAnswer: (m) => domain.some(x => domain.every(y => inR(x, y, m))),
+        checkWitness: (person, m) => domain.every(y => inR(person, y, m)),
+        explanation: "Find ONE object with arrows to ALL other objects",
+        compareNote: "💡 **Scope matters!** ∀x∃yRxy means EACH thing has SOME arrow out. ∃x∀yRxy means ONE thing has arrows to EVERYTHING. Completely different!"
+      },
+      {
+        stage: 2,
+        number: 7,
+        formula: "∀x∃yRyx",
+        english: "Everything has an incoming R-arrow",
+        type: 'nested-universal-existential',
+        checkAnswer: (m) => domain.every(x => domain.some(y => inR(y, x, m))),
+        checkCounterexample: (person, m) => getIncoming(person, m).length === 0,
+        explanation: "Does EVERY object have at least ONE arrow in?"
+      },
+      {
+        stage: 2,
+        number: 8,
+        formula: "∃x∀yRyx",
+        english: "Something has incoming R-arrows from everything",
+        type: 'nested-existential-universal',
+        checkAnswer: (m) => domain.some(x => domain.every(y => inR(y, x, m))),
+        checkWitness: (person, m) => domain.every(y => inR(y, person, m)),
+        explanation: "Find ONE object with arrows FROM all other objects"
+      },
+      {
+        stage: 2,
+        number: 9,
+        formula: "∃x∃yRxy",
+        english: "Something is R-related to something",
+        type: 'simple-check',
+        checkAnswer: (m) => m.R.length > 0,
+        explanation: "This is true if there's at least one arrow anywhere. Is R non-empty?"
+      },
+      {
+        stage: 2,
+        number: 10,
+        formula: "∀x∀yRxy",
+        english: "Everything is R-related to everything",
+        type: 'simple-check',
+        checkAnswer: (m) => m.R.length === 9,
+        explanation: "This is true if EVERY ordered pair is in R. Are there 9 arrows (3² for complete relation)?"
+      },
+      {
+        stage: 2,
+        number: 11,
+        formula: "∃x∀y(Rxy → Ryx)",
+        english: "Something has the property that: if it's related to anything, that thing is related back",
+        type: 'nested-existential-universal',
+        checkAnswer: (m) => domain.some(x => domain.every(y => !inR(x, y, m) || inR(y, x, m))),
+        checkWitness: (person, m) => domain.every(y => !inR(person, y, m) || inR(y, person, m)),
+        explanation: "Find an object where: for every arrow OUT, there's an arrow back IN"
+      },
+      {
+        stage: 2,
+        number: 12,
+        formula: "∀x∃y(Rxy ∧ Ryx)",
+        english: "Everything has a mutual R-relationship with something",
+        type: 'nested-universal-existential',
+        checkAnswer: (m) => domain.every(x => domain.some(y => inR(x, y, m) && inR(y, x, m))),
+        checkCounterexample: (person, m) => !domain.some(y => inR(person, y, m) && inR(y, person, m)),
+        explanation: "Find an object with NO two-way arrows"
+      },
+      {
+        stage: 2,
+        number: 13,
+        formula: "∃x∃y(¬x = y ∧ Rxy ∧ Ryx)",
+        english: "There are two different objects with a mutual R-relationship",
+        type: 'two-step-existential',
+        checkAnswer: (m) => {
+          for (let x of domain) {
+            for (let y of domain) {
+              if (x !== y && inR(x, y, m) && inR(y, x, m)) {
+                return true;
+              }
+            }
+          }
+          return false;
+        },
+        checkWitnessPair: (obj1, obj2, m) => obj1 !== obj2 && inR(obj1, obj2, m) && inR(obj2, obj1, m),
+        explanation: "Click FIRST object, then click SECOND object"
+      },
+      {
+        stage: 2,
+        number: 14,
+        formula: "∀x∃y(¬x = y ∧ Rxy)",
+        english: "Everything is R-related to something other than itself",
+        type: 'nested-universal-existential',
+        checkAnswer: (m) => domain.every(x => domain.some(y => x !== y && inR(x, y, m))),
+        checkCounterexample: (person, m) => {
+          const outgoing = getOutgoing(person, m);
+          return outgoing.every(target => target === person);
+        },
+        explanation: "Find an object whose ONLY outgoing arrow is a self-loop (or has no outgoing arrows)"
+      }
+    ];
+    
+    // Count problems per stage
+    problems.forEach(p => {
+      stageProgress[p.stage].total++;
+    });
+    
+    // Record attempt
+    function recordAttempt(problemNumber, isCorrect) {
+      if (!attemptTracker[problemNumber]) {
+        attemptTracker[problemNumber] = { attempts: 0, correct: false };
+      }
+      
+      attemptTracker[problemNumber].attempts++;
+      
+      if (isCorrect && !attemptTracker[problemNumber].correct) {
+        attemptTracker[problemNumber].correct = true;
+      }
+    }
+    
+    // Get score
+    function getScore() {
+      const entries = Object.entries(attemptTracker);
+      const total = entries.length;
+      const correct = entries.filter(([_, v]) => v.correct).length;
+      const firstTry = entries.filter(([_, v]) => v.correct && v.attempts === 1).length;
+      
+      return { correct, total, firstTry };
+    }
+    
+    // Render problems
+    function renderProblems() {
+      const container = document.getElementById('problems-container');
+      container.innerHTML = '';
+      
+      problems.forEach((problem, index) => {
+        // Add stage header when stage changes
+        if (index > 0 && problem.stage !== problems[index - 1].stage) {
+          const stageHeader = document.createElement('div');
+          stageHeader.className = 'stage-header';
+          if (problem.stage === 1) {
+            stageHeader.innerHTML = `
+              <h2>Stage 1: Universal Review</h2>
+              <p>Quick warm-up with universal quantifiers</p>
+            `;
+          } else if (problem.stage === 2) {
+            stageHeader.innerHTML = `
+              <h2>Stage 2: Nested Quantifiers</h2>
+              <p>Understand quantifier scope and the "for each... there exists" pattern</p>
+            `;
+          }
+          container.appendChild(stageHeader);
+          
+          const completionDiv = document.createElement('div');
+          completionDiv.id = `stage-${problem.stage}-completion`;
+          completionDiv.className = 'stage-completion';
+          container.appendChild(completionDiv);
+        }
+        
+        const problemDiv = document.createElement('div');
+        problemDiv.className = 'problem';
+        problemDiv.id = `problem-${problem.number}`;
+        
+        let attemptBadge = '';
+        if (attemptTracker[problem.number] && attemptTracker[problem.number].correct) {
+          const attempts = attemptTracker[problem.number].attempts;
+          attemptBadge = attempts === 1 
+            ? '<span class="attempt-badge">✓ First try!</span>'
+            : `<span class="attempt-badge">✓ Got it (${attempts} tries)</span>`;
+        }
+        
+        // Replace placeholders in explanation
+        let explanation = problem.explanation || '';
+        explanation = explanation.replace('{a}', model.names.a);
+        explanation = explanation.replace('{b}', model.names.b);
+        
+        let compareNote = problem.compareNote || '';
+        compareNote = compareNote.replace('{a}', model.names.a);
+        compareNote = compareNote.replace('{b}', model.names.b);
+        
+        let html = `
+          <div class="problem-header">
+            <div class="problem-number">Problem ${problem.number}${attemptBadge}</div>
+            <div class="formula">
+              <button class="english-toggle" onclick="toggleEnglish(${problem.number})">📖 English</button>
+              ${problem.formula}
+            </div>
+            <div id="english-${problem.number}" class="english">"${problem.english}"</div>
+          </div>
+        `;
+        
+        if (problem.type === 'simple-check') {
+          // Simple TRUE/FALSE only
+          html += `
+            <div class="tf-buttons">
+              <button onclick="checkTrueFalse(${index}, true)">TRUE</button>
+              <button onclick="checkTrueFalse(${index}, false)">FALSE</button>
+              ${explanation ? `<button class="hint-toggle" onclick="toggleHint(${problem.number})">💡 Hint</button>` : ''}
+            </div>
+            ${explanation ? `<div id="hint-${problem.number}" class="hint-content">${explanation}</div>` : ''}
+            <div id="feedback-${problem.number}"></div>
+          `;
+        } else if (problem.type === 'existential' || problem.type === 'nested-existential-universal') {
+          html += `
+            <div class="tf-buttons">
+              <button onclick="checkTrueFalse(${index}, true)">TRUE</button>
+              <button onclick="checkTrueFalse(${index}, false)">FALSE</button>
+              ${explanation ? `<button class="hint-toggle" onclick="toggleHint(${problem.number})">💡 Hint</button>` : ''}
+            </div>
+            ${explanation ? `<div id="hint-${problem.number}" class="hint-content">${explanation}</div>` : ''}
+            <div id="witness-section-${problem.number}"></div>
+            <div id="feedback-${problem.number}"></div>
+          `;
+        } else if (problem.type === 'universal' || problem.type === 'nested-universal-existential') {
+          html += `
+            <div class="tf-buttons">
+              <button onclick="checkTrueFalse(${index}, true)">TRUE</button>
+              <button onclick="checkTrueFalse(${index}, false)">FALSE</button>
+              ${explanation ? `<button class="hint-toggle" onclick="toggleHint(${problem.number})">💡 Hint</button>` : ''}
+            </div>
+            ${explanation ? `<div id="hint-${problem.number}" class="hint-content">${explanation}</div>` : ''}
+            <div id="counterexample-section-${problem.number}"></div>
+            <div id="feedback-${problem.number}"></div>
+          `;
+        } else if (problem.type === 'two-step-existential') {
+          html += `
+            <div class="tf-buttons">
+              <button onclick="checkTrueFalse(${index}, true)">TRUE</button>
+              <button onclick="checkTrueFalse(${index}, false)">FALSE</button>
+              ${explanation ? `<button class="hint-toggle" onclick="toggleHint(${problem.number})">💡 Hint</button>` : ''}
+            </div>
+            ${explanation ? `<div id="hint-${problem.number}" class="hint-content">${explanation}</div>` : ''}
+            <div id="witness-section-${problem.number}"></div>
+            <div id="feedback-${problem.number}"></div>
+          `;
+        }
+        
+        if (compareNote) {
+          html += `<div class="compare-note">${compareNote}</div>`;
+        }
+        
+        problemDiv.innerHTML = html;
+        container.appendChild(problemDiv);
+      });
+    }
+    
+    function checkTrueFalse(index, answer) {
+      const problem = problems[index];
+      const correctAnswer = problem.checkAnswer(model);
+      const buttons = document.querySelectorAll(`#problem-${problem.number} .tf-buttons button`);
+      const feedbackDiv = document.getElementById(`feedback-${problem.number}`);
+      
+      // Update button styling
+      buttons[0].classList.remove('selected-true', 'selected-false');
+      buttons[1].classList.remove('selected-true', 'selected-false');
+      if (answer === true) {
+        buttons[0].classList.add('selected-true');
+      } else {
+        buttons[1].classList.add('selected-false');
+      }
+      
+      if (problem.type === 'simple-check') {
+        // Simple TRUE/FALSE problems
+        if (answer === correctAnswer) {
+          feedbackDiv.innerHTML = `
+            <div class="feedback correct">
+              <h4>✓ Correct!</h4>
+              <p>${problem.formula} is ${correctAnswer ? 'TRUE' : 'FALSE'}.</p>
+            </div>
+          `;
+          recordAttempt(problem.number, true);
+          if (!buttons[0].hasAttribute('data-completed')) {
+            completedProblems++;
+            stageProgress[problem.stage].completed++;
+            buttons[0].setAttribute('data-completed', 'true');
+            buttons[1].setAttribute('data-completed', 'true');
+            checkCompletion();
+            checkStageCompletion(problem.stage);
+            renderProblems();
+          }
+        } else {
+          feedbackDiv.innerHTML = `
+            <div class="feedback incorrect">
+              <h4>✗ Not quite.</h4>
+              <p>Try the other option!</p>
+            </div>
+          `;
+          recordAttempt(problem.number, false);
+        }
+      } else if (problem.type === 'existential' || problem.type === 'nested-existential-universal') {
+        const witnessSection = document.getElementById(`witness-section-${problem.number}`);
+        
+        if (answer === false && correctAnswer === false) {
+          // Correctly identified as FALSE
+          witnessSection.innerHTML = '';
+          feedbackDiv.innerHTML = `
+            <div class="feedback correct">
+              <h4>✓ Correct! This sentence is FALSE.</h4>
+            </div>
+          `;
+          recordAttempt(problem.number, true);
+          if (!buttons[0].hasAttribute('data-completed')) {
+            completedProblems++;
+            stageProgress[problem.stage].completed++;
+            buttons[0].setAttribute('data-completed', 'true');
+            buttons[1].setAttribute('data-completed', 'true');
+            checkCompletion();
+            checkStageCompletion(problem.stage);
+            renderProblems();
+          }
+        } else if (answer === true && correctAnswer === false) {
+          // Incorrectly said TRUE when it's FALSE
+          witnessSection.innerHTML = '';
+          feedbackDiv.innerHTML = `
+            <div class="feedback incorrect">
+              <h4>✗ Not quite.</h4>
+              <p>Try the other option!</p>
+            </div>
+          `;
+          recordAttempt(problem.number, false);
+        } else if (answer === false && correctAnswer === true) {
+          // Incorrectly said FALSE when it's TRUE
+          witnessSection.innerHTML = '';
+          feedbackDiv.innerHTML = `
+            <div class="feedback incorrect">
+              <h4>✗ Not quite.</h4>
+              <p>Try the other option!</p>
+            </div>
+          `;
+          recordAttempt(problem.number, false);
+        } else if (answer === true && correctAnswer === true) {
+          // Correctly said TRUE - now pick witness
+          feedbackDiv.innerHTML = '';
+          witnessSection.innerHTML = `
+            <div class="witness-section">
+              <h4>Good! Now click on a witness:</h4>
+              ${domain.map(obj => `<button class="person-button" onclick="checkWitness(${index}, ${obj})">${obj}</button>`).join('')}
+            </div>
+          `;
+        }
+      } else if (problem.type === 'universal' || problem.type === 'nested-universal-existential') {
+        const counterexampleSection = document.getElementById(`counterexample-section-${problem.number}`);
+        
+        if (answer === false && correctAnswer === false) {
+          // Correctly identified as FALSE - now pick counterexample
+          feedbackDiv.innerHTML = '';
+          counterexampleSection.innerHTML = `
+            <div class="witness-section">
+              <h4>Good! Now click on a counterexample:</h4>
+              ${domain.map(obj => `<button class="person-button" onclick="checkCounterexample(${index}, ${obj})">${obj}</button>`).join('')}
+            </div>
+          `;
+        } else if (answer === true && correctAnswer === false) {
+          // Incorrectly said TRUE when it's FALSE
+          counterexampleSection.innerHTML = '';
+          feedbackDiv.innerHTML = `
+            <div class="feedback incorrect">
+              <h4>✗ Not quite.</h4>
+              <p>Try the other option!</p>
+            </div>
+          `;
+          recordAttempt(problem.number, false);
+        } else if (answer === false && correctAnswer === true) {
+          // Incorrectly said FALSE when it's TRUE
+          counterexampleSection.innerHTML = '';
+          feedbackDiv.innerHTML = `
+            <div class="feedback incorrect">
+              <h4>✗ Not quite.</h4>
+              <p>Try the other option!</p>
+            </div>
+          `;
+          recordAttempt(problem.number, false);
+        } else if (answer === true && correctAnswer === true) {
+          // Correctly identified as TRUE
+          counterexampleSection.innerHTML = '';
+          feedbackDiv.innerHTML = `
+            <div class="feedback correct">
+              <h4>✓ Correct! This sentence is TRUE.</h4>
+            </div>
+          `;
+          recordAttempt(problem.number, true);
+          if (!buttons[0].hasAttribute('data-completed')) {
+            completedProblems++;
+            stageProgress[problem.stage].completed++;
+            buttons[0].setAttribute('data-completed', 'true');
+            buttons[1].setAttribute('data-completed', 'true');
+            checkCompletion();
+            checkStageCompletion(problem.stage);
+            renderProblems();
+          }
+        }
+      } else if (problem.type === 'two-step-existential') {
+        const witnessSection = document.getElementById(`witness-section-${problem.number}`);
+        
+        if (answer === false && correctAnswer === false) {
+          witnessSection.innerHTML = '';
+          feedbackDiv.innerHTML = `
+            <div class="feedback correct">
+              <h4>✓ Correct! This sentence is FALSE.</h4>
+            </div>
+          `;
+          recordAttempt(problem.number, true);
+          if (!buttons[0].hasAttribute('data-completed')) {
+            completedProblems++;
+            stageProgress[problem.stage].completed++;
+            buttons[0].setAttribute('data-completed', 'true');
+            buttons[1].setAttribute('data-completed', 'true');
+            checkCompletion();
+            checkStageCompletion(problem.stage);
+            renderProblems();
+          }
+        } else if (answer === true && correctAnswer === false) {
+          witnessSection.innerHTML = '';
+          feedbackDiv.innerHTML = `
+            <div class="feedback incorrect">
+              <h4>✗ Not quite.</h4>
+              <p>Try the other option!</p>
+            </div>
+          `;
+          recordAttempt(problem.number, false);
+        } else if (answer === false && correctAnswer === true) {
+          witnessSection.innerHTML = '';
+          feedbackDiv.innerHTML = `
+            <div class="feedback incorrect">
+              <h4>✗ Not quite.</h4>
+              <p>Try the other option!</p>
+            </div>
+          `;
+          recordAttempt(problem.number, false);
+        } else if (answer === true && correctAnswer === true) {
+          // Two-step: click first object
+          feedbackDiv.innerHTML = '';
+          twoStepState.problemNumber = problem.number;
+          twoStepState.firstObject = null;
+          witnessSection.innerHTML = `
+            <div class="witness-section">
+              <h4>Good! Now click on the FIRST object:</h4>
+              ${domain.map(obj => `<button class="person-button" onclick="selectFirstObject(${index}, ${obj})">${obj}</button>`).join('')}
+            </div>
+          `;
+        }
+      }
+    }
+    
+    function checkWitness(index, person) {
+      const problem = problems[index];
+      const feedbackDiv = document.getElementById(`feedback-${problem.number}`);
+      const witnessSection = document.getElementById(`witness-section-${problem.number}`);
+      
+      const isWitness = problem.checkWitness(person, model);
+      
+      let feedback = `<div class="feedback ${isWitness ? 'correct' : 'incorrect'}">`;
+      feedback += `<h4>Checking object ${person} as a witness:</h4>`;
+      
+      // Generate specific feedback based on problem type
+      if (problem.type === 'existential') {
+        // Standard existential feedback
+        if (problem.formula === '∃xRxb') {
+          const result = inR(person, model.names.b, model);
+          feedback += `<div class="verification-line">Is ⟨${person},${model.names.b}⟩ in R? ${result ? 'YES' : 'NO'}</div>`;
+        } else if (problem.formula === '∃xRxx') {
+          const result = inR(person, person, model);
+          feedback += `<div class="verification-line">Is ⟨${person},${person}⟩ in R? ${result ? 'YES' : 'NO'}</div>`;
+        }
+      } else if (problem.type === 'nested-existential-universal') {
+        // Nested quantifier feedback
+        if (problem.formula === '∃x∀yRxy') {
+          feedback += `<p>Checking if ${person} has arrows to everything:</p>`;
+          domain.forEach(target => {
+            const result = inR(person, target, model);
+            feedback += `<div class="verification-line">Does ${person} have arrow to ${target}? ${result ? 'YES ✓' : 'NO ✗'}</div>`;
+          });
+        } else if (problem.formula === '∃x∀yRyx') {
+          feedback += `<p>Checking if ${person} has arrows from everything:</p>`;
+          domain.forEach(source => {
+            const result = inR(source, person, model);
+            feedback += `<div class="verification-line">Does ${source} have arrow to ${person}? ${result ? 'YES ✓' : 'NO ✗'}</div>`;
+          });
+        } else if (problem.formula === '∃x∀y(Rxy → Ryx)') {
+          feedback += `<p>For object ${person}, checking all implications:</p>`;
+          domain.forEach(target => {
+            const ant = inR(person, target, model);
+            const cons = inR(target, person, model);
+            const impl = !ant || cons;
+            feedback += `<div class="verification-line">R${person}${target}? ${ant ? 'YES' : 'NO'} | R${target}${person}? ${cons ? 'YES' : 'NO'} | Implication: ${impl ? 'TRUE ✓' : 'FALSE ✗'}</div>`;
+          });
+        }
+      }
+      
+      if (isWitness) {
+        feedback += `<p style="margin-top: 15px; font-weight: bold;">✓ Correct! Object ${person} is a witness.</p>`;
+        feedback += `<p>Therefore ${problem.formula} is TRUE.</p>`;
+        witnessSection.innerHTML = '';
+        
+        const buttons = document.querySelectorAll(`#problem-${problem.number} .tf-buttons button`);
+        recordAttempt(problem.number, true);
+        if (!buttons[0].hasAttribute('data-completed')) {
+          completedProblems++;
+          stageProgress[problem.stage].completed++;
+          buttons[0].setAttribute('data-completed', 'true');
+          buttons[1].setAttribute('data-completed', 'true');
+          checkCompletion();
+          checkStageCompletion(problem.stage);
+          renderProblems();
+        }
+      } else {
+        feedback += `<p style="margin-top: 15px; font-weight: bold;">✗ Object ${person} is not a witness. Try again!</p>`;
+        recordAttempt(problem.number, false);
+      }
+      
+      feedback += `</div>`;
+      feedbackDiv.innerHTML = feedback;
+    }
+    
+    function checkCounterexample(index, person) {
+      const problem = problems[index];
+      const feedbackDiv = document.getElementById(`feedback-${problem.number}`);
+      const counterexampleSection = document.getElementById(`counterexample-section-${problem.number}`);
+      
+      const isCounterexample = problem.checkCounterexample(person, model);
+      
+      let feedback = `<div class="feedback ${isCounterexample ? 'correct' : 'incorrect'}">`;
+      feedback += `<h4>Checking object ${person} as a counterexample:</h4>`;
+      
+      // Generate specific feedback based on problem type
+      if (problem.type === 'universal') {
+        if (problem.formula === '∀xRxa') {
+          const result = inR(person, model.names.a, model);
+          feedback += `<div class="verification-line">Is ⟨${person},${model.names.a}⟩ in R? ${result ? 'YES' : 'NO'}</div>`;
+        } else if (problem.formula === '∀xRxx') {
+          const result = inR(person, person, model);
+          feedback += `<div class="verification-line">Is ⟨${person},${person}⟩ in R? ${result ? 'YES' : 'NO'}</div>`;
+        }
+      } else if (problem.type === 'nested-universal-existential') {
+        if (problem.formula === '∀x∃yRxy') {
+          const outgoing = getOutgoing(person, model);
+          feedback += `<p>Checking object ${person}:</p>`;
+          feedback += `<div class="verification-line">Outgoing arrows from ${person}: ${outgoing.length > 0 ? outgoing.join(', ') : '[none]'}</div>`;
+          feedback += `<div class="verification-line">Object ${person} has ${outgoing.length} outgoing arrow(s)</div>`;
+        } else if (problem.formula === '∀x∃yRyx') {
+          const incoming = getIncoming(person, model);
+          feedback += `<p>Checking object ${person}:</p>`;
+          feedback += `<div class="verification-line">Incoming arrows to ${person}: ${incoming.length > 0 ? incoming.join(', ') : '[none]'}</div>`;
+          feedback += `<div class="verification-line">Object ${person} has ${incoming.length} incoming arrow(s)</div>`;
+        } else if (problem.formula === '∀x∃y(Rxy ∧ Ryx)') {
+          feedback += `<p>Checking if ${person} has any mutual relationships:</p>`;
+          const hasMutual = domain.some(y => inR(person, y, model) && inR(y, person, model));
+          domain.forEach(other => {
+            const out = inR(person, other, model);
+            const in_ = inR(other, person, model);
+            const mutual = out && in_;
+            feedback += `<div class="verification-line">With ${other}: ${person}→${other}? ${out ? 'YES' : 'NO'} | ${other}→${person}? ${in_ ? 'YES' : 'NO'} | Mutual? ${mutual ? 'YES ✓' : 'NO'}</div>`;
+          });
+        } else if (problem.formula === '∀x∃y(¬x = y ∧ Rxy)') {
+          const outgoing = getOutgoing(person, model);
+          const outgoingNonSelf = outgoing.filter(t => t !== person);
+          feedback += `<p>Checking object ${person}:</p>`;
+          feedback += `<div class="verification-line">Outgoing arrows: ${outgoing.length > 0 ? outgoing.join(', ') : '[none]'}</div>`;
+          feedback += `<div class="verification-line">Outgoing to others (not self): ${outgoingNonSelf.length > 0 ? outgoingNonSelf.join(', ') : '[none]'}</div>`;
+        }
+      }
+      
+      if (isCounterexample) {
+        feedback += `<p style="margin-top: 15px; font-weight: bold;">✓ Correct! Object ${person} is a counterexample.</p>`;
+        feedback += `<p>Therefore ${problem.formula} is FALSE.</p>`;
+        counterexampleSection.innerHTML = '';
+        
+        const buttons = document.querySelectorAll(`#problem-${problem.number} .tf-buttons button`);
+        recordAttempt(problem.number, true);
+        if (!buttons[0].hasAttribute('data-completed')) {
+          completedProblems++;
+          stageProgress[problem.stage].completed++;
+          buttons[0].setAttribute('data-completed', 'true');
+          buttons[1].setAttribute('data-completed', 'true');
+          checkCompletion();
+          checkStageCompletion(problem.stage);
+          renderProblems();
+        }
+      } else {
+        feedback += `<p style="margin-top: 15px; font-weight: bold;">✗ Object ${person} is not a counterexample. Try again!</p>`;
+        recordAttempt(problem.number, false);
+      }
+      
+      feedback += `</div>`;
+      feedbackDiv.innerHTML = feedback;
+    }
+    
+    function selectFirstObject(index, obj) {
+      const problem = problems[index];
+      twoStepState.firstObject = obj;
+      
+      const witnessSection = document.getElementById(`witness-section-${problem.number}`);
+      witnessSection.innerHTML = `
+        <div class="witness-section">
+          <h4>First object selected: ${obj}. Now click on the SECOND object:</h4>
+          ${domain.map(o => {
+            const classes = o === obj ? 'person-button selected-first' : 'person-button';
+            return `<button class="${classes}" onclick="selectSecondObject(${index}, ${o})">${o}</button>`;
+          }).join('')}
+        </div>
+      `;
+    }
+    
+    function selectSecondObject(index, obj) {
+      const problem = problems[index];
+      const firstObj = twoStepState.firstObject;
+      const feedbackDiv = document.getElementById(`feedback-${problem.number}`);
+      const witnessSection = document.getElementById(`witness-section-${problem.number}`);
+      
+      const isValid = problem.checkWitnessPair(firstObj, obj, model);
+      
+      let feedback = `<div class="feedback ${isValid ? 'correct' : 'incorrect'}">`;
+      feedback += `<h4>Checking objects ${firstObj} and ${obj}:</h4>`;
+      
+      const different = firstObj !== obj;
+      const fwdArrow = inR(firstObj, obj, model);
+      const backArrow = inR(obj, firstObj, model);
+      
+      feedback += `<div class="verification-line">Are ${firstObj} and ${obj} different? ${different ? 'YES ✓' : 'NO ✗'}</div>`;
+      feedback += `<div class="verification-line">Is ⟨${firstObj},${obj}⟩ in R? ${fwdArrow ? 'YES ✓' : 'NO ✗'}</div>`;
+      feedback += `<div class="verification-line">Is ⟨${obj},${firstObj}⟩ in R? ${backArrow ? 'YES ✓' : 'NO ✗'}</div>`;
+      
+      if (isValid) {
+        feedback += `<p style="margin-top: 15px; font-weight: bold;">✓ Correct! ${firstObj} and ${obj} have a mutual relationship.</p>`;
+        feedback += `<p>Therefore ${problem.formula} is TRUE.</p>`;
+        witnessSection.innerHTML = '';
+        
+        const buttons = document.querySelectorAll(`#problem-${problem.number} .tf-buttons button`);
+        recordAttempt(problem.number, true);
+        if (!buttons[0].hasAttribute('data-completed')) {
+          completedProblems++;
+          stageProgress[problem.stage].completed++;
+          buttons[0].setAttribute('data-completed', 'true');
+          buttons[1].setAttribute('data-completed', 'true');
+          checkCompletion();
+          checkStageCompletion(problem.stage);
+          renderProblems();
+        }
+        
+        // Reset two-step state
+        twoStepState.problemNumber = null;
+        twoStepState.firstObject = null;
+      } else {
+        feedback += `<p style="margin-top: 15px; font-weight: bold;">✗ Not quite. Check the arrows between ${firstObj} and ${obj}.</p>`;
+        recordAttempt(problem.number, false);
+        
+        // Reset selection
+        twoStepState.firstObject = null;
+        witnessSection.innerHTML = `
+          <div class="witness-section">
+            <h4>Try again! Click on the FIRST object:</h4>
+            ${domain.map(o => `<button class="person-button" onclick="selectFirstObject(${index}, ${o})">${o}</button>`).join('')}
+          </div>
+        `;
+      }
+      
+      feedback += `</div>`;
+      feedbackDiv.innerHTML = feedback;
+    }
+    
+    function checkCompletion() {
+      if (completedProblems === problems.length) {
+        const score = getScore();
+        document.getElementById('final-score').innerHTML = `
+          <strong>Score Summary:</strong><br>
+          ✓ ${score.firstTry}/${score.total} problems correct on first try (${Math.round(score.firstTry/score.total*100)}%)<br>
+          ✓ ${score.correct}/${score.total} problems solved correctly<br>
+          <em>Completion #${completionCount + 1}</em>
+        `;
+        document.getElementById('completion').style.display = 'block';
+      }
+    }
+    
+    function checkStageCompletion(stage) {
+      const stageInfo = stageProgress[stage];
+      if (stageInfo.completed === stageInfo.total) {
+        const completionDiv = document.getElementById(`stage-${stage}-completion`);
+        if (completionDiv) {
+          completionDiv.innerHTML = `✓ Stage ${stage} Complete! ${stageInfo.completed}/${stageInfo.total}`;
+          completionDiv.style.display = 'block';
+        }
+      }
+    }
+    
+    function toggleHint(problemNumber) {
+      const hintContent = document.getElementById(`hint-${problemNumber}`);
+      const button = event.target;
+      
+      if (hintContent.classList.contains('show')) {
+        hintContent.classList.remove('show');
+        button.textContent = '💡 Hint';
+      } else {
+        hintContent.classList.add('show');
+        button.textContent = '💡 Hide';
+      }
+    }
+    
+    function toggleEnglish(problemNumber) {
+      const englishContent = document.getElementById(`english-${problemNumber}`);
+      const button = event.target;
+      
+      if (englishContent.classList.contains('show')) {
+        englishContent.classList.remove('show');
+        button.textContent = '📖 English';
+      } else {
+        englishContent.classList.add('show');
+        button.textContent = '📖 Hide';
+      }
+    }
+    
+    function resetWithNewModel() {
+      completionCount++;
+      completedProblems = 0;
+      
+      // Reset stage progress
+      for (let stage in stageProgress) {
+        stageProgress[stage].completed = 0;
+      }
+      
+      // Reset two-step state
+      twoStepState.problemNumber = null;
+      twoStepState.firstObject = null;
+      
+      // Generate new model
+      model = generateRandomModel();
+      displayModel();
+      
+      // Hide completion message
+      document.getElementById('completion').style.display = 'none';
+      
+      // Re-render problems
+      renderProblems();
+      
+      // Scroll to top
+      window.scrollTo(0, 0);
+    }
+    
+    // Initialize
+    model = generateRandomModel();
+    displayModel();
+    renderProblems();
+  </script>
+</body>
+</html>
