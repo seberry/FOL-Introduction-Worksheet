@@ -7,8 +7,8 @@ const AVAILABLE_NAMES = ['alice', 'bob', 'charlie', 'daisy', 'eddy'];
 // Available predicate letters
 const AVAILABLE_PREDICATES = ['P', 'Q', 'R', 'S', 'T'];
 
-// Available constant letters
-const AVAILABLE_CONSTANTS = ['a', 'b', 'c', 'd', 'e'];
+// Available constant letters (match what templates use)
+const AVAILABLE_CONSTANTS = ['c', 'd', 'e', 'f', 'g'];
 
 /**
  * Generate a random model
@@ -84,11 +84,12 @@ function createSubstitutions(problem, model, constants) {
     subs[templateVar] = pred;
   });
   
-  // Map constant variables to actual constants
+  // Map constant variables to actual people
+  // Templates use 'c', 'd', 'e' and we generate constants with same names
   if (problem.constants > 0) {
     const constantLetters = AVAILABLE_CONSTANTS.slice(0, problem.constants);
     constantLetters.forEach(c => {
-      subs[c] = constants[c];
+      subs[c] = constants[c]; // e.g., subs['c'] = 'alice'
     });
   }
   
