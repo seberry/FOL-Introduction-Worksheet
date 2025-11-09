@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worksheet 3: Binary Relations</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    
+    .model-box {
+      background: white;
+      border: 2px solid #2c3e50;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+      position: sticky;
+      top: 10px;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .model-box h2 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+    
+    .model-box p {
+      margin: 8px 0;
+      font-size: 16px;
+    }
+    
+    .diagram-container {
+      margin: 20px 0;
+      text-align: center;
+    }
+    
+    .relation-set {
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      color: #555;
+      margin-top: 10px;
+    }
+    
+    .problem {
+      background: white;
+      border-radius: 8px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .problem-header {
+      border-bottom: 2px solid #ecf0f1;
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .problem-number {
+      color: #3498db;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    
+    .stage-label {
+      display: inline-block;
+      background: #3498db;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-left: 10px;
+    }
+    
+    .formula {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 10px 0;
+      color: #2c3e50;
+    }
+    
+    .problem-content {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    
+    .problem-main {
+      flex: 1;
+    }
+    
+    .problem-sidebar {
+      width: 200px;
+      flex-shrink: 0;
+    }
+    
+    .english {
+      color: #7f8c8d;
+      font-style: italic;
+      font-size: 16px;
+    }
+    
+    .instructions {
+      background: #e8f4f8;
+      border-left: 4px solid #3498db;
+      padding: 12px;
+      margin: 15px 0;
+      border-radius: 4px;
+      font-size: 15px;
+    }
+    
+    .tf-buttons {
+      margin: 20px 0;
+    }
+    
+    .tf-buttons button {
+      padding: 12px 30px;
+      margin-right: 15px;
+      font-size: 16px;
+      border: 2px solid #95a5a6;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .tf-buttons button:hover:not(:disabled) {
+      background: #ecf0f1;
+      border-color: #7f8c8d;
+    }
+    
+    .tf-buttons button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .tf-buttons button.selected {
+      background: #3498db;
+      color: white;
+      border-color: #2980b9;
+    }
+    
+    .object-selector {
+      margin: 20px 0;
+    }
+    
+    .object-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    
+    .object-buttons button {
+      width: 60px;
+      height: 60px;
+      font-size: 20px;
+      font-weight: bold;
+      border: 2px solid #95a5a6;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .object-buttons button:hover:not(:disabled) {
+      background: #ecf0f1;
+      border-color: #7f8c8d;
+    }
+    
+    .object-buttons button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .object-buttons button.selected {
+      background: #2ecc71;
+      color: white;
+      border-color: #27ae60;
+    }
+    
+    .feedback {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+    
+    .feedback.correct {
+      background: #d5f4e6;
+      border: 2px solid #27ae60;
+      color: #27ae60;
+    }
+    
+    .feedback.incorrect {
+      background: #fadbd8;
+      border: 2px solid #e74c3c;
+      color: #c0392b;
+    }
+    
+    .feedback-detail {
+      margin-top: 10px;
+      padding: 10px;
+      background: rgba(255,255,255,0.5);
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .completion-message {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      margin: 30px 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    .completion-message h2 {
+      margin: 0 0 20px 0;
+      font-size: 32px;
+    }
+    
+    .completion-message .score {
+      font-size: 20px;
+      margin: 10px 0;
+    }
+    
+    .reset-button {
+      background: white;
+      color: #764ba2;
+      border: none;
+      padding: 15px 40px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.2s;
+    }
+    
+    .reset-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    
+    .hard-mode-toggle {
+      margin: 20px 0;
+      padding: 15px;
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      border-radius: 6px;
+    }
+    
+    .hard-mode-toggle label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
+    .hard-mode-toggle input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    
+    .toggle-button {
+      background: #ecf0f1;
+      border: 1px solid #bdc3c7;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #2c3e50;
+      margin: 5px 0;
+      display: block;
+      width: 100%;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    
+    .toggle-button:hover {
+      background: #d5dbdb;
+    }
+    
+    .toggle-content {
+      display: none;
+      margin-top: 10px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-left: 3px solid #95a5a6;
+      border-radius: 4px;
+      font-size: 15px;
+    }
+    
+    .toggle-content.show {
+      display: block;
+    }
+    
+    .toggle-content.english {
+      color: #7f8c8d;
+      font-style: italic;
+    }
+    
+    .toggle-content.hint {
+      background: #e8f4f8;
+      border-left-color: #3498db;
+    }
+  </style>
+</head>
+<body>
+  <h1>Worksheet 3: Binary Relations</h1>
+  
+  <div class="model-box" id="model-display">
+    <h2>Model</h2>
+    <p><strong>Domain:</strong> {1, 2, 3}</p>
+    <p><strong>Names:</strong> <span id="names-display"></span></p>
+    <div class="diagram-container">
+      <svg id="relation-diagram" width="400" height="400"></svg>
+    </div>
+    <p class="relation-set" id="relation-set"></p>
+  </div>
+  
+  <div id="problems-container"></div>
+  
+  <div id="completion-container"></div>
+
+  <script>
+    // Model state
+    let currentModel = null;
+    let attemptTracker = {};
+    
+    // Problem definitions
+    const problems = [
+      // Stage 0: Atomic (3 problems)
+      {
+        stage: 0,
+        number: 1,
+        formula: "Rab",
+        english: "a is R-related to b",
+        type: 'atomic',
+        checkAnswer: (model) => {
+          const a = model.names.a;
+          const b = model.names.b;
+          return inR(a, b, model);
+        }
+      },
+      {
+        stage: 0,
+        number: 2,
+        formula: "Rba",
+        english: "b is R-related to a",
+        type: 'atomic',
+        checkAnswer: (model) => {
+          const a = model.names.a;
+          const b = model.names.b;
+          return inR(b, a, model);
+        }
+      },
+      {
+        stage: 0,
+        number: 3,
+        formula: "Raa",
+        english: "a is R-related to itself",
+        type: 'atomic',
+        checkAnswer: (model) => {
+          const a = model.names.a;
+          return inR(a, a, model);
+        }
+      },
+      
+      // Stage 1: Existentials (8 problems)
+      {
+        stage: 1,
+        number: 4,
+        formula: "∃xRax",
+        english: "a is R-related to something",
+        hint: "Is there any arrow from a?",
+        type: 'existential',
+        checkAnswer: (model) => {
+          const a = model.names.a;
+          return getOutgoing(a, model).length > 0;
+        },
+        checkWitness: (obj, model) => {
+          const a = model.names.a;
+          return inR(a, obj, model);
+        }
+      },
+      {
+        stage: 1,
+        number: 5,
+        formula: "∃xRxa",
+        english: "something is R-related to a",
+        hint: "Is there any arrow into a?",
+        type: 'existential',
+        checkAnswer: (model) => {
+          const a = model.names.a;
+          return getIncoming(a, model).length > 0;
+        },
+        checkWitness: (obj, model) => {
+          const a = model.names.a;
+          return inR(obj, a, model);
+        }
+      },
+      {
+        stage: 1,
+        number: 6,
+        formula: "∃xRxx",
+        english: "something is R-related to itself",
+        hint: "Find an object with a self-loop",
+        type: 'existential',
+        checkAnswer: (model) => {
+          return model.domain.some(obj => inR(obj, obj, model));
+        },
+        checkWitness: (obj, model) => {
+          return inR(obj, obj, model);
+        }
+      },
+      {
+        stage: 1,
+        number: 7,
+        formula: "∃xRbx",
+        english: "b is R-related to something",
+        hint: "Is there any arrow from b?",
+        type: 'existential',
+        checkAnswer: (model) => {
+          const b = model.names.b;
+          return getOutgoing(b, model).length > 0;
+        },
+        checkWitness: (obj, model) => {
+          const b = model.names.b;
+          return inR(b, obj, model);
+        }
+      },
+      {
+        stage: 1,
+        number: 8,
+        formula: "∃xRxb",
+        english: "something is R-related to b",
+        hint: "Is there any arrow into b?",
+        type: 'existential',
+        checkAnswer: (model) => {
+          const b = model.names.b;
+          return getIncoming(b, model).length > 0;
+        },
+        checkWitness: (obj, model) => {
+          const b = model.names.b;
+          return inR(obj, b, model);
+        }
+      },
+      {
+        stage: 1,
+        number: 9,
+        formula: "∃x(Rax ∧ Rxb)",
+        english: "there's something that a is R-related to and that is R-related to b",
+        hint: "Find an object that has an arrow from a AND an arrow to b",
+        type: 'existential',
+        checkAnswer: (model) => {
+          const a = model.names.a;
+          const b = model.names.b;
+          return model.domain.some(obj => inR(a, obj, model) && inR(obj, b, model));
+        },
+        checkWitness: (obj, model) => {
+          const a = model.names.a;
+          const b = model.names.b;
+          return inR(a, obj, model) && inR(obj, b, model);
+        }
+      },
+      {
+        stage: 1,
+        number: 10,
+        formula: "∃x(Rxa ∧ Rbx)",
+        english: "there's something that is R-related to a and that b is R-related to",
+        hint: "Find an object with an arrow to a AND an arrow from b",
+        type: 'existential',
+        checkAnswer: (model) => {
+          const a = model.names.a;
+          const b = model.names.b;
+          return model.domain.some(obj => inR(obj, a, model) && inR(b, obj, model));
+        },
+        checkWitness: (obj, model) => {
+          const a = model.names.a;
+          const b = model.names.b;
+          return inR(obj, a, model) && inR(b, obj, model);
+        }
+      },
+      {
+        stage: 1,
+        number: 11,
+        formula: "∃x(Rax ∧ Rxa)",
+        english: "there's something that a has a mutual relationship with",
+        hint: "Find an object with arrows BOTH from a and to a",
+        type: 'existential',
+        checkAnswer: (model) => {
+          const a = model.names.a;
+          return model.domain.some(obj => inR(a, obj, model) && inR(obj, a, model));
+        },
+        checkWitness: (obj, model) => {
+          const a = model.names.a;
+          return inR(a, obj, model) && inR(obj, a, model);
+        }
+      },
+      
+      // Stage 2: Universals (8 problems)
+      {
+        stage: 2,
+        number: 12,
+        formula: "∀xRxa",
+        english: "everything is R-related to a",
+        hint: "Does EVERY object have an arrow to a?",
+        type: 'universal',
+        checkAnswer: (model) => {
+          const a = model.names.a;
+          return model.domain.every(obj => inR(obj, a, model));
+        },
+        checkCounterexample: (obj, model) => {
+          const a = model.names.a;
+          return !inR(obj, a, model);
+        }
+      },
+      {
+        stage: 2,
+        number: 13,
+        formula: "∀xRax",
+        english: "a is R-related to everything",
+        hint: "Does a have arrows to ALL objects?",
+        type: 'universal',
+        checkAnswer: (model) => {
+          const a = model.names.a;
+          return model.domain.every(obj => inR(a, obj, model));
+        },
+        checkCounterexample: (obj, model) => {
+          const a = model.names.a;
+          return !inR(a, obj, model);
+        }
+      },
+      {
+        stage: 2,
+        number: 14,
+        formula: "∀xRxx",
+        english: "everything is R-related to itself",
+        hint: "Does EVERY object have a self-loop?",
+        type: 'universal',
+        checkAnswer: (model) => {
+          return model.domain.every(obj => inR(obj, obj, model));
+        },
+        checkCounterexample: (obj, model) => {
+          return !inR(obj, obj, model);
+        }
+      },
+      {
+        stage: 2,
+        number: 15,
+        formula: "∀xRbx",
+        english: "b is R-related to everything",
+        hint: "Does b have arrows to ALL objects?",
+        type: 'universal',
+        checkAnswer: (model) => {
+          const b = model.names.b;
+          return model.domain.every(obj => inR(b, obj, model));
+        },
+        checkCounterexample: (obj, model) => {
+          const b = model.names.b;
+          return !inR(b, obj, model);
+        }
+      },
+      {
+        stage: 2,
+        number: 16,
+        formula: "∀xRxb",
+        english: "everything is R-related to b",
+        hint: "Does EVERY object have an arrow to b?",
+        type: 'universal',
+        checkAnswer: (model) => {
+          const b = model.names.b;
+          return model.domain.every(obj => inR(obj, b, model));
+        },
+        checkCounterexample: (obj, model) => {
+          const b = model.names.b;
+          return !inR(obj, b, model);
+        }
+      },
+      {
+        stage: 2,
+        number: 17,
+        formula: "∀x(Rxa → Rax)",
+        english: "if anything is R-related to a, then a is R-related to it",
+        hint: "Find an object x where there's an arrow x→a but NO arrow a→x",
+        type: 'universal',
+        checkAnswer: (model) => {
+          const a = model.names.a;
+          return model.domain.every(obj => !inR(obj, a, model) || inR(a, obj, model));
+        },
+        checkCounterexample: (obj, model) => {
+          const a = model.names.a;
+          return inR(obj, a, model) && !inR(a, obj, model);
+        }
+      },
+      {
+        stage: 2,
+        number: 18,
+        formula: "∀x(Rxx → Rxa)",
+        english: "if anything is R-related to itself, then it's R-related to a",
+        hint: "Find an object with a self-loop but NO arrow to a",
+        type: 'universal',
+        checkAnswer: (model) => {
+          const a = model.names.a;
+          return model.domain.every(obj => !inR(obj, obj, model) || inR(obj, a, model));
+        },
+        checkCounterexample: (obj, model) => {
+          const a = model.names.a;
+          return inR(obj, obj, model) && !inR(obj, a, model);
+        }
+      },
+      {
+        stage: 2,
+        number: 19,
+        formula: "∀x(Rax ∨ Rbx)",
+        english: "for everything: either a is R-related to it or b is R-related to it",
+        hint: "Find an object with NO arrow from a and NO arrow from b",
+        type: 'universal',
+        checkAnswer: (model) => {
+          const a = model.names.a;
+          const b = model.names.b;
+          return model.domain.every(obj => inR(a, obj, model) || inR(b, obj, model));
+        },
+        checkCounterexample: (obj, model) => {
+          const a = model.names.a;
+          const b = model.names.b;
+          return !inR(a, obj, model) && !inR(b, obj, model);
+        }
+      }
+    ];
+    
+    // Helper functions
+    function inR(x, y, model) {
+      return model.R.some(pair => pair[0] === x && pair[1] === y);
+    }
+    
+    function getOutgoing(obj, model) {
+      return model.R.filter(pair => pair[0] === obj).map(pair => pair[1]);
+    }
+    
+    function getIncoming(obj, model) {
+      return model.R.filter(pair => pair[1] === obj).map(pair => pair[0]);
+    }
+    
+    // Generate random model
+    function generateRandomModel() {
+      const domain = [1, 2, 3];
+      const pairs = [];
+      
+      // Generate pairs with ~50% probability
+      for (let i of domain) {
+        for (let j of domain) {
+          if (Math.random() > 0.5) {
+            pairs.push([i, j]);
+          }
+        }
+      }
+      
+      // Ensure at least 2 pairs
+      if (pairs.length < 2) {
+        pairs.push([1, 2]);
+        pairs.push([2, 3]);
+      }
+      
+      // Randomly assign names
+      const shuffled = [...domain].sort(() => Math.random() - 0.5);
+      
+      return {
+        domain: domain,
+        names: {
+          a: shuffled[0],
+          b: shuffled[1]
+        },
+        R: pairs
+      };
+    }
+    
+    // Draw arrow diagram
+    function drawDiagram(model) {
+      const svg = document.getElementById('relation-diagram');
+      svg.innerHTML = '';
+      
+      const width = 400;
+      const height = 400;
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const radius = 120;
+      
+      // Position objects in triangle
+      const positions = {
+        1: { x: centerX, y: centerY - radius },              // Top
+        2: { x: centerX + radius * 0.866, y: centerY + radius * 0.5 },  // Bottom-right
+        3: { x: centerX - radius * 0.866, y: centerY + radius * 0.5 }   // Bottom-left
+      };
+      
+      // Draw arrows
+      model.R.forEach(([from, to]) => {
+        if (from === to) {
+          // Self-loop
+          const pos = positions[from];
+          const loopRadius = 25;
+          const angle = from === 1 ? -90 : (from === 2 ? 30 : 150);
+          const angleRad = angle * Math.PI / 180;
+          const cx = pos.x + Math.cos(angleRad) * loopRadius;
+          const cy = pos.y + Math.sin(angleRad) * loopRadius;
+          
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          const startAngle = angle - 90;
+          const endAngle = angle + 90;
+          const startRad = startAngle * Math.PI / 180;
+          const endRad = endAngle * Math.PI / 180;
+          const startX = cx + Math.cos(startRad) * loopRadius;
+          const startY = cy + Math.sin(startRad) * loopRadius;
+          const endX = cx + Math.cos(endRad) * loopRadius;
+          const endY = cy + Math.sin(endRad) * loopRadius;
+          
+          path.setAttribute('d', `M ${startX} ${startY} A ${loopRadius} ${loopRadius} 0 1 1 ${endX} ${endY}`);
+          path.setAttribute('stroke', '#2c3e50');
+          path.setAttribute('stroke-width', '2');
+          path.setAttribute('fill', 'none');
+          path.setAttribute('marker-end', 'url(#arrowhead)');
+          svg.appendChild(path);
+        } else {
+          // Regular arrow
+          const fromPos = positions[from];
+          const toPos = positions[to];
+          const dx = toPos.x - fromPos.x;
+          const dy = toPos.y - fromPos.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const offset = 25;
+          const startX = fromPos.x + (dx / dist) * offset;
+          const startY = fromPos.y + (dy / dist) * offset;
+          const endX = toPos.x - (dx / dist) * offset;
+          const endY = toPos.y - (dy / dist) * offset;
+          
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', startX);
+          line.setAttribute('y1', startY);
+          line.setAttribute('x2', endX);
+          line.setAttribute('y2', endY);
+          line.setAttribute('stroke', '#2c3e50');
+          line.setAttribute('stroke-width', '2');
+          line.setAttribute('marker-end', 'url(#arrowhead)');
+          svg.appendChild(line);
+        }
+      });
+      
+      // Draw arrowhead marker
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+      marker.setAttribute('id', 'arrowhead');
+      marker.setAttribute('markerWidth', '10');
+      marker.setAttribute('markerHeight', '10');
+      marker.setAttribute('refX', '9');
+      marker.setAttribute('refY', '3');
+      marker.setAttribute('orient', 'auto');
+      const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      polygon.setAttribute('points', '0 0, 10 3, 0 6');
+      polygon.setAttribute('fill', '#2c3e50');
+      marker.appendChild(polygon);
+      defs.appendChild(marker);
+      svg.insertBefore(defs, svg.firstChild);
+      
+      // Draw nodes
+      model.domain.forEach(obj => {
+        const pos = positions[obj];
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', pos.x);
+        circle.setAttribute('cy', pos.y);
+        circle.setAttribute('r', '25');
+        circle.setAttribute('fill', 'white');
+        circle.setAttribute('stroke', '#2c3e50');
+        circle.setAttribute('stroke-width', '3');
+        svg.appendChild(circle);
+        
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', pos.x);
+        text.setAttribute('y', pos.y);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'central');
+        text.setAttribute('font-size', '20');
+        text.setAttribute('font-weight', 'bold');
+        text.setAttribute('fill', '#2c3e50');
+        text.textContent = obj;
+        svg.appendChild(text);
+        
+        // Add name labels if this object is named
+        const names = [];
+        if (model.names.a === obj) names.push('a');
+        if (model.names.b === obj) names.push('b');
+        
+        if (names.length > 0) {
+          const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          nameText.setAttribute('x', pos.x);
+          nameText.setAttribute('y', pos.y + 40);
+          nameText.setAttribute('text-anchor', 'middle');
+          nameText.setAttribute('font-size', '16');
+          nameText.setAttribute('font-style', 'italic');
+          nameText.setAttribute('fill', '#7f8c8d');
+          nameText.textContent = names.join(', ');
+          svg.appendChild(nameText);
+        }
+      });
+    }
+    
+    // Display model
+    function displayModel(model) {
+      document.getElementById('names-display').textContent = 
+        `a: ${model.names.a}, b: ${model.names.b}`;
+      
+      const pairs = model.R.map(([x, y]) => `⟨${x},${y}⟩`).join(', ');
+      document.getElementById('relation-set').textContent = `R = {${pairs}}`;
+      
+      drawDiagram(model);
+    }
+    
+    // Initialize attempt tracker
+    function initializeAttemptTracker() {
+      attemptTracker = {};
+      problems.forEach(p => {
+        attemptTracker[p.number] = { attempts: 0, correct: false };
+      });
+    }
+    
+    // Render problem
+    function renderProblem(problem) {
+      const container = document.createElement('div');
+      container.className = 'problem';
+      container.id = `problem-${problem.number}`;
+      
+      const stageName = problem.stage === 0 ? 'Atomic' : 
+                        problem.stage === 1 ? 'Existential' : 'Universal';
+      
+      container.innerHTML = `
+        <div class="problem-header">
+          <span class="problem-number">Problem ${problem.number}</span>
+          <span class="stage-label">Stage ${problem.stage}: ${stageName}</span>
+        </div>
+        <div class="problem-content">
+          <div class="problem-main">
+            <div class="formula">${problem.formula}</div>
+            <div class="tf-buttons">
+              <button onclick="handleTFClick(${problem.number}, true)">TRUE</button>
+              <button onclick="handleTFClick(${problem.number}, false)">FALSE</button>
+            </div>
+            <div id="selector-${problem.number}"></div>
+            <div id="feedback-${problem.number}"></div>
+          </div>
+          <div class="problem-sidebar">
+            <button class="toggle-button" onclick="toggleEnglish(${problem.number})">
+              Show English
+            </button>
+            <div id="english-${problem.number}" class="toggle-content english">"${problem.english}"</div>
+            ${problem.hint ? `
+              <button class="toggle-button" onclick="toggleHint(${problem.number})">Show Hint</button>
+              <div id="hint-${problem.number}" class="toggle-content hint">${problem.hint}</div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+      
+      return container;
+    }
+    
+    // Toggle English translation
+    function toggleEnglish(problemNum) {
+      const content = document.getElementById(`english-${problemNum}`);
+      const button = document.querySelector(`#problem-${problemNum} .toggle-button`);
+      content.classList.toggle('show');
+      button.textContent = content.classList.contains('show') ? 'Hide English' : 'Show English';
+    }
+    
+    // Toggle hint
+    function toggleHint(problemNum) {
+      const content = document.getElementById(`hint-${problemNum}`);
+      const buttons = document.querySelectorAll(`#problem-${problemNum} .toggle-button`);
+      const hintButton = Array.from(buttons).find(btn => btn.textContent.includes('Hint'));
+      content.classList.toggle('show');
+      hintButton.textContent = content.classList.contains('show') ? 'Hide Hint' : 'Show Hint';
+    }
+    
+    // Handle TRUE/FALSE click
+    function handleTFClick(problemNum, answer) {
+      const problem = problems.find(p => p.number === problemNum);
+      const correct = problem.checkAnswer(currentModel) === answer;
+      
+      attemptTracker[problemNum].attempts++;
+      
+      const buttons = document.querySelectorAll(`#problem-${problemNum} .tf-buttons button`);
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        if ((btn.textContent === 'TRUE' && answer === true) || 
+            (btn.textContent === 'FALSE' && answer === false)) {
+          btn.classList.add('selected');
+        }
+      });
+      
+      if (problem.type === 'atomic') {
+        showFeedback(problemNum, correct, answer);
+      } else {
+        if (correct) {
+          if (problem.type === 'existential' && answer === true) {
+            showWitnessSelector(problemNum);
+          } else if (problem.type === 'universal' && answer === false) {
+            showCounterexampleSelector(problemNum);
+          } else {
+            showFeedback(problemNum, true, answer);
+          }
+        } else {
+          showFeedback(problemNum, false, answer);
+        }
+      }
+    }
+    
+    // Show witness selector
+    function showWitnessSelector(problemNum) {
+      const selector = document.getElementById(`selector-${problemNum}`);
+      selector.innerHTML = `
+        <div class="object-selector">
+          <div class="instructions">Click on the witness:</div>
+          <div class="object-buttons">
+            ${currentModel.domain.map(obj => 
+              `<button onclick="handleWitnessClick(${problemNum}, ${obj})">${obj}</button>`
+            ).join('')}
+          </div>
+        </div>
+      `;
+    }
+    
+    // Show counterexample selector
+    function showCounterexampleSelector(problemNum) {
+      const selector = document.getElementById(`selector-${problemNum}`);
+      selector.innerHTML = `
+        <div class="object-selector">
+          <div class="instructions">Click on the counterexample:</div>
+          <div class="object-buttons">
+            ${currentModel.domain.map(obj => 
+              `<button onclick="handleCounterexampleClick(${problemNum}, ${obj})">${obj}</button>`
+            ).join('')}
+          </div>
+        </div>
+      `;
+    }
+    
+    // Handle witness click
+    function handleWitnessClick(problemNum, obj) {
+      const problem = problems.find(p => p.number === problemNum);
+      const correct = problem.checkWitness(obj, currentModel);
+      
+      const buttons = document.querySelectorAll(`#selector-${problemNum} .object-buttons button`);
+      buttons.forEach(btn => btn.disabled = true);
+      buttons[currentModel.domain.indexOf(obj)].classList.add('selected');
+      
+      showFeedback(problemNum, correct, true, obj);
+    }
+    
+    // Handle counterexample click
+    function handleCounterexampleClick(problemNum, obj) {
+      const problem = problems.find(p => p.number === problemNum);
+      const correct = problem.checkCounterexample(obj, currentModel);
+      
+      const buttons = document.querySelectorAll(`#selector-${problemNum} .object-buttons button`);
+      buttons.forEach(btn => btn.disabled = true);
+      buttons[currentModel.domain.indexOf(obj)].classList.add('selected');
+      
+      showFeedback(problemNum, correct, false, obj);
+    }
+    
+    // Show feedback
+    function showFeedback(problemNum, correct, tfAnswer, selectedObj = null) {
+      const feedback = document.getElementById(`feedback-${problemNum}`);
+      const problem = problems.find(p => p.number === problemNum);
+      
+      if (correct) {
+        attemptTracker[problemNum].correct = true;
+        feedback.className = 'feedback correct';
+        feedback.innerHTML = '✓ Correct!';
+      } else {
+        feedback.className = 'feedback incorrect';
+        feedback.innerHTML = '✗ Incorrect. Try again!';
+      }
+      
+      checkCompletion();
+    }
+    
+    // Check if all problems complete
+    function checkCompletion() {
+      const allCorrect = Object.values(attemptTracker).every(t => t.correct);
+      if (allCorrect) {
+        const firstTryCount = Object.values(attemptTracker)
+          .filter(t => t.attempts === 1 && t.correct).length;
+        showCompletionMessage(firstTryCount);
+      }
+    }
+    
+    // Show completion message
+    function showCompletionMessage(firstTryCount) {
+      const container = document.getElementById('completion-container');
+      container.innerHTML = `
+        <div class="completion-message">
+          <h2>🎉 Worksheet 3 Complete!</h2>
+          <div class="score">${firstTryCount}/19 correct on first try</div>
+          <div class="score">All problems solved correctly!</div>
+          <button class="reset-button" onclick="resetWorksheet()">Try New Model</button>
+          <p style="margin-top: 20px; font-size: 14px;">
+            You can now screenshot this page and submit it for participation credit.
+          </p>
+        </div>
+      `;
+    }
+    
+    // Reset worksheet
+    function resetWorksheet() {
+      currentModel = generateRandomModel();
+      displayModel(currentModel);
+      initializeAttemptTracker();
+      
+      const container = document.getElementById('problems-container');
+      container.innerHTML = '';
+      problems.forEach(p => container.appendChild(renderProblem(p)));
+      
+      document.getElementById('completion-container').innerHTML = '';
+    }
+    
+    // Initialize
+    resetWorksheet();
+  </script>
+</body>
+</html>
