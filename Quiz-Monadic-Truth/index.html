@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FOL Truth in a Model - Quiz</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: "Computer Modern", "Latin Modern Roman", serif;
+      font-size: 12pt;
+      line-height: 1.6;
+      max-width: 8.5in;
+      margin: 0.5in auto;
+      padding: 0.5in;
+      background: white;
+      color: black;
+    }
+    
+    h1 {
+      font-size: 18pt;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 0.5in;
+      border-bottom: 2px solid black;
+      padding-bottom: 0.2in;
+    }
+    
+    .model-section {
+      margin-bottom: 0.3in;
+      padding: 0.2in;
+      border: 1px solid black;
+    }
+    
+    .model-section h2 {
+      font-size: 14pt;
+      font-weight: bold;
+      margin-bottom: 0.15in;
+    }
+    
+    .model-line {
+      font-family: "Courier New", monospace;
+      margin: 0.05in 0;
+      font-size: 11pt;
+    }
+    
+    .problem {
+      margin-bottom: 0.3in;
+      page-break-inside: avoid;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 0.2in;
+    }
+    
+    .problem-number {
+      font-weight: bold;
+      font-size: 12pt;
+      margin-bottom: 0.1in;
+    }
+    
+    .formula {
+      font-family: "Courier New", monospace;
+      font-size: 13pt;
+      margin: 0.1in 0;
+      padding: 0.1in;
+      background: #f9f9f9;
+      border-left: 3px solid black;
+    }
+    
+    .answer-section {
+      margin-top: 0.15in;
+    }
+    
+    .answer-row {
+      margin: 0.1in 0;
+      display: flex;
+      align-items: center;
+      gap: 0.2in;
+    }
+    
+    .answer-row label {
+      font-weight: bold;
+      min-width: 1.5in;
+    }
+    
+    select {
+      font-family: "Courier New", monospace;
+      font-size: 11pt;
+      padding: 0.05in 0.1in;
+      border: 1px solid black;
+      background: white;
+      min-width: 1.5in;
+    }
+    
+    .submit-section {
+      margin-top: 0.4in;
+      text-align: center;
+      padding-top: 0.2in;
+      border-top: 2px solid black;
+    }
+    
+    button {
+      font-size: 12pt;
+      padding: 0.1in 0.3in;
+      border: 2px solid black;
+      background: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
+    button:hover {
+      background: #f0f0f0;
+    }
+    
+    .results-section {
+      margin-top: 0.3in;
+      padding: 0.2in;
+      border: 2px solid black;
+      display: none;
+    }
+    
+    .results-section.visible {
+      display: block;
+    }
+    
+    .score {
+      font-size: 16pt;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 0.2in;
+    }
+    
+    .problem-feedback {
+      margin: 0.15in 0;
+      padding: 0.1in;
+      border-left: 3px solid black;
+    }
+    
+    .problem-feedback.correct {
+      border-left-color: #2d2d2d;
+      background: #f0f0f0;
+    }
+    
+    .problem-feedback.incorrect {
+      border-left-color: #000;
+      background: #e8e8e8;
+    }
+    
+    .feedback-header {
+      font-weight: bold;
+      margin-bottom: 0.05in;
+    }
+    
+    .feedback-detail {
+      font-size: 10pt;
+      margin-left: 0.2in;
+      font-family: "Courier New", monospace;
+    }
+    
+    .explanation {
+      font-size: 10pt;
+      margin-top: 0.1in;
+      font-style: italic;
+    }
+    
+    @media print {
+      body {
+        margin: 0;
+        padding: 0.5in;
+      }
+      
+      button {
+        display: none;
+      }
+      
+      select {
+        border: none;
+        border-bottom: 1px solid black;
+        background: transparent;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>First-Order Logic: Truth in a Model</h1>
+  
+  <div class="model-section" id="model-display">
+    <!-- Model will be inserted here -->
+  </div>
+  
+  <div id="problems-container">
+    <!-- Problems will be inserted here -->
+  </div>
+  
+  <div class="submit-section">
+    <button onclick="submitQuiz()" id="submit-button">Submit Quiz</button>
+  </div>
+  
+  <div class="results-section" id="results-section">
+    <!-- Results will be inserted here -->
+  </div>
+
+  <script src="fol_problem_bank.js"></script>
+  <script src="quiz_generator.js"></script>
+  <script>
+    // Generate quiz on page load
+    let currentQuiz = null;
+    
+    function initializeQuiz() {
+      currentQuiz = generateQuiz({
+        stage0Count: 1,
+        stage1Count: 2,
+        stage2Count: 2,
+        stage3Count: 2
+      });
+      
+      displayModel();
+      displayProblems();
+    }
+    
+    function displayModel() {
+      const modelDiv = document.getElementById('model-display');
+      const model = currentQuiz.model;
+      
+      let html = '<h2>Model</h2>';
+      
+      // Domain
+      html += `<div class="model-line">Domain: {${model.domain.join(', ')}}</div>`;
+      
+      // Constants (if any)
+      if (Object.keys(currentQuiz.constants).length > 0) {
+        const constantStrs = Object.entries(currentQuiz.constants)
+          .map(([letter, person]) => `${letter}: ${person}`);
+        html += `<div class="model-line">Constants: ${constantStrs.join(', ')}</div>`;
+      }
+      
+      // Predicates
+      const predicates = ['P', 'Q', 'R', 'S', 'T'].filter(p => model[p]);
+      predicates.forEach(pred => {
+        const extension = model[pred].length > 0 ? `{${model[pred].join(', ')}}` : '∅';
+        html += `<div class="model-line">${pred}: ${extension}</div>`;
+      });
+      
+      modelDiv.innerHTML = html;
+    }
+    
+    function displayProblems() {
+      const container = document.getElementById('problems-container');
+      let html = '';
+      
+      currentQuiz.problems.forEach((problem, index) => {
+        html += `
+          <div class="problem">
+            <div class="problem-number">Problem ${problem.number}</div>
+            <div class="formula">${problem.formula}</div>
+            <div class="answer-section">
+              <div class="answer-row">
+                <label for="truth-${problem.number}">True or False:</label>
+                <select id="truth-${problem.number}" name="truth-${problem.number}">
+                  <option value="">-- Select --</option>
+                  <option value="true">True</option>
+                  <option value="false">False</option>
+                </select>
+              </div>
+        `;
+        
+        // Add witness input for stages 1 and 2
+        if (problem.stage === 1 || problem.stage === 2) {
+          const witnessLabel = problem.stage === 1 ? 'Witness (if applicable):' : 'Counterexample (if applicable):';
+          html += `
+              <div class="answer-row">
+                <label for="witness-${problem.number}">${witnessLabel}</label>
+                <select id="witness-${problem.number}" name="witness-${problem.number}">
+                  <option value="">-- Select --</option>
+          `;
+          
+          // Add domain members as options
+          currentQuiz.model.domain.forEach(person => {
+            html += `<option value="${person}">${person}</option>`;
+          });
+          
+          html += `
+                  <option value="n/a">n/a</option>
+                </select>
+              </div>
+          `;
+        }
+        
+        html += `
+            </div>
+          </div>
+        `;
+      });
+      
+      container.innerHTML = html;
+    }
+    
+    function submitQuiz() {
+      // Collect student answers
+      const studentAnswers = [];
+      let allAnswered = true;
+      
+      currentQuiz.problems.forEach(problem => {
+        const truthSelect = document.getElementById(`truth-${problem.number}`);
+        const truthValue = truthSelect.value;
+        
+        if (!truthValue) {
+          allAnswered = false;
+          return;
+        }
+        
+        let witness = null;
+        if (problem.stage === 1 || problem.stage === 2) {
+          const witnessSelect = document.getElementById(`witness-${problem.number}`);
+          witness = witnessSelect.value || null;
+        }
+        
+        studentAnswers.push({
+          truthValue: truthValue === 'true',
+          witness: witness
+        });
+      });
+      
+      if (!allAnswered) {
+        alert('Please answer all problems before submitting.');
+        return;
+      }
+      
+      // Grade the quiz
+      const results = gradeQuiz(currentQuiz, studentAnswers);
+      displayResults(results);
+      
+      // Disable submit button
+      document.getElementById('submit-button').disabled = true;
+      document.getElementById('submit-button').textContent = 'Submitted';
+      
+      // Disable all inputs
+      document.querySelectorAll('select').forEach(select => {
+        select.disabled = true;
+      });
+    }
+    
+    function displayResults(results) {
+      const resultsDiv = document.getElementById('results-section');
+      let html = '';
+      
+      // Score
+      html += `<div class="score">Score: ${results.correctProblems}/${results.totalProblems} (${results.percentage}%)</div>`;
+      
+      // Feedback for each problem
+      results.results.forEach((result, index) => {
+        const problem = result.problem;
+        const isCorrect = result.correct;
+        
+        if (!isCorrect) {
+          html += `<div class="problem-feedback incorrect">`;
+          html += `<div class="feedback-header">✗ Problem ${problem.number}: Incorrect</div>`;
+          
+          if (!result.truthValueCorrect) {
+            html += `<div class="feedback-detail">The correct answer is: ${result.correctAnswer ? 'True' : 'False'}</div>`;
+          }
+          
+          if (result.witnessRequired && !result.witnessCorrect) {
+            html += `<div class="feedback-detail">${result.witnessMessage}</div>`;
+          }
+          
+          // Add explanation
+          html += `<div class="explanation">${generateExplanation(result, currentQuiz)}</div>`;
+          html += `</div>`;
+        } else {
+          html += `<div class="problem-feedback correct">`;
+          html += `<div class="feedback-header">✓ Problem ${problem.number}: Correct</div>`;
+          html += `</div>`;
+        }
+      });
+      
+      resultsDiv.innerHTML = html;
+      resultsDiv.classList.add('visible');
+      
+      // Scroll to results
+      resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    function generateExplanation(result, quiz) {
+      const problem = result.problem;
+      const model = quiz.model;
+      const subs = problem.substitutions;
+      const correctAnswer = result.correctAnswer;
+      
+      // Get actual predicate names from substitutions
+      const predicates = {};
+      Object.keys(subs).forEach(key => {
+        if (key.match(/^[PQRST]$/)) {
+          predicates[key] = subs[key];
+        }
+      });
+      
+      let explanation = '';
+      
+      if (problem.stage === 0) {
+        // Stage 0 explanation - just evaluate the formula
+        explanation = `Evaluate the formula step by step using the model above.`;
+      } else if (problem.stage === 1) {
+        // Existential
+        if (correctAnswer) {
+          // Find a witness
+          const witness = model.domain.find(p => 
+            problem.originalProblem.checkWitness(p, model, subs)
+          );
+          explanation = `This is TRUE. For example, "${witness}" is a witness.`;
+        } else {
+          explanation = `This is FALSE. No member of the domain satisfies the formula.`;
+        }
+      } else if (problem.stage === 2) {
+        // Universal
+        if (correctAnswer) {
+          explanation = `This is TRUE. Every member of the domain satisfies the formula.`;
+        } else {
+          // Find a counterexample
+          const counterexample = model.domain.find(p => 
+            problem.originalProblem.checkCounterexample(p, model, subs)
+          );
+          explanation = `This is FALSE. For example, "${counterexample}" is a counterexample.`;
+        }
+      } else if (problem.stage === 3) {
+        // Stage 3 - scope issues
+        if (problem.originalProblem.scope_note) {
+          explanation = problem.originalProblem.scope_note;
+        } else {
+          explanation = correctAnswer ? 
+            'This formula is TRUE in the given model.' : 
+            'This formula is FALSE in the given model.';
+        }
+      }
+      
+      return explanation;
+    }
+    
+    // Initialize quiz when page loads
+    window.onload = initializeQuiz;
+  </script>
+</body>
+</html>
