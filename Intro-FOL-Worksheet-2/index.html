@@ -932,13 +932,17 @@
       attemptTracker[problemNum].attempts++;
       
       const buttons = document.querySelectorAll(`#problem-${problemNum} .tf-buttons button`);
-      buttons.forEach(btn => {
-        btn.disabled = true;
-        if ((btn.textContent === 'TRUE' && answer === true) || 
-            (btn.textContent === 'FALSE' && answer === false)) {
-          btn.classList.add('selected');
-        }
-      });
+buttons.forEach(btn => btn.classList.remove('selected')); // Remove previous highlight
+if (answer === true) {
+  buttons[0].classList.add('selected');
+} else {
+  buttons[1].classList.add('selected');
+}
+
+if (correct) {
+  // Only disable buttons if they got it right
+  buttons.forEach(btn => btn.disabled = true);
+}
       
       if (problem.type === 'atomic') {
         showFeedback(problemNum, correct, answer);
@@ -993,7 +997,6 @@
       const correct = problem.checkWitness(obj, currentModel);
       
       const buttons = document.querySelectorAll(`#selector-${problemNum} .object-buttons button`);
-      buttons.forEach(btn => btn.disabled = true);
       buttons[currentModel.domain.indexOf(obj)].classList.add('selected');
       
       showFeedback(problemNum, correct, true, obj);
@@ -1005,7 +1008,6 @@
       const correct = problem.checkCounterexample(obj, currentModel);
       
       const buttons = document.querySelectorAll(`#selector-${problemNum} .object-buttons button`);
-      buttons.forEach(btn => btn.disabled = true);
       buttons[currentModel.domain.indexOf(obj)].classList.add('selected');
       
       showFeedback(problemNum, correct, false, obj);
