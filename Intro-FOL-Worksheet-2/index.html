@@ -312,20 +312,55 @@
       background: #e8f4f8;
       border-left-color: #3498db;
     }
+    .model-content {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+/* Make the info column a bit narrower */
+.model-info {
+  flex: 1 1 150px;
+  min-width: 130px;
+}
+
+.diagram-container {
+  flex: 1 1 250px;
+  min-width: 200px;
+}
+
+/* Responsive: Stack columns on small screens */
+@media (max-width: 600px) {
+  .model-content {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .diagram-container svg {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 280px;
+  }
+}
   </style>
 </head>
 <body>
   <h1>Worksheet 2: Binary Relations</h1>
   
-  <div class="model-box" id="model-display">
+<div class="model-box" id="model-display">
+  
+  <div class="model-content">
+    <div class="model-info">
     <h2>Model</h2>
-    <p><strong>Domain:</strong> {1, 2, 3}</p>
-    <p><strong>Names:</strong> <span id="names-display"></span></p>
-    <div class="diagram-container">
-      <svg id="relation-diagram" width="400" height="250"></svg>
+      <p><strong>Domain:</strong> {1, 2, 3}</p>
+      <p><strong>Names:</strong> <span id="names-display"></span></p>
+      <p class="relation-set" id="relation-set"></p>
     </div>
-    <p class="relation-set" id="relation-set"></p>
+    <div class="diagram-container">
+      <svg id="relation-diagram" width="400" height="325"></svg>
+    </div>
   </div>
+</div>
   
   <div id="problems-container"></div>
   
