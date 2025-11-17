@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FOL Polyadic Symbolization Quiz Practice</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    /* You can move this <style> block into a shared CSS file later. */
+
+    :root {
+      --bg: #f5f5f7;
+      --card-bg: #ffffff;
+      --accent: #2f5be7;
+      --border: #e0e0e0;
+      --muted: #555555;
+      --radius-lg: 12px;
+      --radius-sm: 6px;
+      --shadow-soft: 0 8px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: var(--bg);
+      color: #111;
+      line-height: 1.5;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1.5rem 1.25rem 2.5rem;
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+    }
+
+    @media (min-width: 768px) {
+      .page {
+        padding: 2rem 2.5rem 3rem;
+      }
+    }
+
+    h1 {
+      margin-top: 0;
+      margin-bottom: 0.25rem;
+      font-size: 1.8rem;
+    }
+
+    .subtitle {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .quiz-note {
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+      background: #f9f9fb;
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 0.75rem;
+      border: 1px dashed var(--border);
+    }
+
+    h2.section-title {
+      margin-top: 2rem;
+      margin-bottom: 0.5rem;
+      font-size: 1.35rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.25rem;
+    }
+
+    .symbol-key {
+      margin: 1rem 0 2rem;
+      padding: 1rem 1.25rem;
+      border-radius: var(--radius-lg);
+      background: #f0f4ff;
+      border: 1px solid #d5defa;
+    }
+
+    .symbol-key h2 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .symbol-key-code {
+      font-family: "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.9rem;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 0.35rem 0.5rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid #d0d6f5;
+    }
+
+    .symbol-key ul {
+      margin: 0.5rem 0 0.5rem 1.25rem;
+      padding: 0;
+      list-style: disc;
+    }
+
+    .symbol-key li {
+      margin-bottom: 0.15rem;
+    }
+
+    .quantifier-note {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .question-group {
+      margin-top: 0.5rem;
+    }
+
+    .question {
+      padding: 0.9rem 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .question:first-of-type {
+      border-top: none;
+    }
+
+    .question-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: baseline;
+      margin-bottom: 0.35rem;
+    }
+
+    .question-label {
+      font-weight: 600;
+    }
+
+    label {
+      display: block;
+      font-weight: 500;
+      font-size: 0.9rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .input-row {
+      margin-top: 0.25rem;
+      margin-bottom: 0.35rem;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 0.35rem 0.5rem;
+      font-size: 0.95rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid #cdd0d5;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      min-height: 3.2rem;
+      resize: vertical;
+    }
+
+    .scratch-note {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin: 0.1rem 0 0.25rem;
+    }
+
+    details {
+      margin-top: 0.25rem;
+      font-size: 0.9rem;
+    }
+
+    details summary {
+      cursor: pointer;
+      list-style: none;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    details summary::marker,
+    details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details[open] summary {
+      margin-bottom: 0.1rem;
+    }
+
+    .hint-text {
+      color: var(--muted);
+      margin: 0.15rem 0 0;
+    }
+
+    .answer-text {
+      margin: 0.15rem 0 0;
+      font-family: "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>FOL Polyadic Symbolization Quiz Practice</h1>
+      <p class="subtitle">
+        Practice translating English sentences into a simple first-order language with a
+        binary <code>Lxy</code> “likes” predicate.
+      </p>
+      <p class="quiz-note">
+        The real quiz will contain versions of 2 easy and 3 medium problems from the list
+        below, plus one challenge problem that's worth EC (but cannot take you above full
+        credit).
+      </p>
+    </header>
+
+    <section class="symbol-key" aria-label="Symbolization key">
+      <h2>Symbolization key</h2>
+      <p><strong>Domain:</strong> all people</p>
+      <ul class="symbol-key-code">
+        <li><code>Lxy</code>: <em>x likes y</em></li>
+        <li><code>Gx</code>: <em>x wants to visit the Galapagos</em></li>
+        <li><code>Mx</code>: <em>x made an aspirational moodboard</em></li>
+        <li><code>Tx</code>: <em>x bought a ticket</em></li>
+        <li><code>c</code>: Charlie</li>
+        <li><code>n</code>: Nancy</li>
+      </ul>
+      <p class="quantifier-note">
+        You can write <code>/forall x</code> for the universal quantifier and
+        <code>\exists x</code> for the existential quantifier.
+        Plain-text is fine; focus on the logical structure.
+      </p>
+    </section>
+
+    <!-- Easy questions -->
+    <section aria-label="Easy questions">
+      <h2 class="section-title">Easy</h2>
+      <div class="question-group">
+        <!-- Q1 -->
+        <article class="question">
+          <div class="question-header">
+            <span class="question-label">1. Charlie likes Nancy.</span>
+          </div>
+
+          <div class="input-row">
+            <label for="q1">Your symbolization</label>
+            <input id="q1" type="text" autocomplete="off" />
+          </div>
+
+          <details class="hint">
+            <summary>Show hint</summary>
+            <p class="hint-text">
+              Use the two-place likes predicate with Charlie in the first spot and
+              Nancy in the second.
+            </p>
+          </details>
+
+          <details class="answer">
+            <summary>Show answer</summary>
+            <p class="answer-text">
+              <code>Lcn</code>
+            </p>
+          </details>
+        </article>
+
+        <!-- Q2 -->
+        <article class="question">
+          <div class="question-header">
+            <span class="question-label">2. Charlie likes himself.</span>
+          </div>
+
+          <div class="input-row">
+            <label for="q2">Your symbolization</label>
+            <input id="q2" type="text" autocomplete="off" />
+          </div>
+
+          <details class="hint">
+            <summary>Show hint</summary>
+            <p class="hint-text">
+              Think of “himself” as Charlie again. You still use the likes
+              predicate, but the same name goes in both argument positions.
+            </p>
+          </details>
+
+          <details class="answer">
+            <summary>Show answer</summary>
+            <p class="answer-text">
+              <code>Lcc</code>
+            </p>
+          </details>
+        </article>
+
+        <!-- Q3 -->
+        <article class="question">
+          <div class="question-header">
+            <span class="question-label">3. Charlie likes someone.</span>
+          </div>
+
+          <div class="input-row">
+            <label for="q3">Your symbolization</label>
+            <input id="q3" type="text" autocomplete="off" />
+          </div>
+
+          <details class="hint">
+            <summary>Show hint</summary>
+            <p class="hint-text">
+              Use an existential quantifier to say that there is at least one person
+              whom Charlie likes.
+            </p>
+          </details>
+
+          <details class="answer">
+            <summary>Show answer</summary>
+            <p class="answer-text">
+              <code>\exists x Lcx</code>
+            </p>
+          </details>
+        </article>
+
+        <!-- Q4 -->
+        <article class="question">
+          <div class="question-header">
+            <span class="question-label">4. Everyone likes Charlie.</span>
+          </div>
+
+          <div class="input-row">
+            <label for="q4">Your symbolization</label>
+            <input id="q4" type="text" autocomplete="off" />
+          </div>
+
+          <details class="hint">
+            <summary>Show hint</summary>
+            <p class="hint-text">
+              Use a universal quantifier over people, and have Charlie in the
+              second argument place of the likes predicate.
+            </p>
+          </details>
+
+          <details class="answer">
+            <summary>Show answer</summary>
+            <p class="answer-text">
+              <code>\forall x Lxc</code>
+            </p>
+          </details>
+        </article>
+
+        <!-- Q5 -->
+        <article class="question">
+          <div class="question-header">
+            <span class="question-label">5. Charlie likes everyone.</span>
+          </div>
+
+          <div class="input-row">
+            <label for="q5">Your symbolization</label>
+            <input id="q5" type="text" autocomplete="off" />
+          </div>
+
+          <details class="hint">
+            <summary>Show hint</summary>
+            <p class="hint-text">
+              Again use a universal quantifier, but now Charlie is fixed in the
+              first argument place and the quantified variable is in the second.
+            </p>
+          </details>
+
+          <details class="answer">
+            <summary>Show answer</summary>
+            <p class="answer-text">
+              <code>\forall x Lcx</code>
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <!-- Medium questions -->
+    <section aria-label="Medium questions">
+      <h2 class="section-title">Medium</h2>
+      <div class="question-group">
+        <!-- Q6 + scratchwork -->
+        <article class="question">
+          <div class="question-header">
+            <span class="question-label">
+              6. Charlie likes someone who wants to visit the Galapagos.
+            </span>
+          </div>
+
+          <p class="scratch-note">
+            It can help to first write a mixed English / FOL sentence that makes the
+            structure clear.
+          </p>
+
+          <div class="input-row">
+            <label for="q6-scratch">Scratchwork / mixed sentence</label>
+            <textarea id="q6-scratch"></textarea>
+          </div>
+
+          <div class="input-row">
+            <label for="q6">Final FOL symbolization</label>
+            <input id="q6" type="text" autocomplete="off" />
+          </div>
+
+          <details class="hint">
+            <summary>Show hint for structure</summary>
+            <p class="hint-text">
+              Try something like: “There is someone <em>x</em> such that:
+              Charlie likes <em>x</em> and <em>x</em> wants to visit the
+              Galapagos.” Then translate that whole mixed sentence into FOL.
+            </p>
+          </details>
+
+          <details class="answer">
+            <summary>Show answer</summary>
+            <p class="answer-text">
+              <code>\exists x (Lcx &amp; Gx)</code>
+            </p>
+          </details>
+        </article>
+
+        <!-- Q7 -->
+        <article class="question">
+          <div class="question-header">
+            <span class="question-label">
+              7. Everyone who likes themselves likes Charlie.
+            </span>
+          </div>
+
+          <p class="scratch-note">
+            Use this space to sketch the structure in English / symbols before writing
+            your final answer.
+          </p>
+
+          <div class="input-row">
+            <label for="q7-scratch">Scratchwork</label>
+            <textarea id="q7-scratch"></textarea>
+          </div>
+
+          <div class="input-row">
+            <label for="q7">Final FOL symbolization</label>
+            <input id="q7" type="text" autocomplete="off" />
+          </div>
+
+          <details class="hint">
+            <summary>Show hint</summary>
+            <p class="hint-text">
+              Use a universal quantifier. Inside, say: if a person likes
+              themselves, then they like Charlie.
+            </p>
+          </details>
+
+          <details class="answer">
+            <summary>Show answer</summary>
+            <p class="answer-text">
+              <code>\forall x (Lxx -&gt; Lxc)</code>
+            </p>
+          </details>
+        </article>
+
+        <!-- Q8 -->
+        <article class="question">
+          <div class="question-header">
+            <span class="question-label">
+              8. Charlie only likes people who like themselves.
+            </span>
+          </div>
+
+          <p class="scratch-note">
+            Use this space to sketch the structure in English / symbols before writing
+            your final answer.
+          </p>
+
+          <div class="input-row">
+            <label for="q8-scratch">Scratchwork</label>
+            <textarea id="q8-scratch"></textarea>
+          </div>
+
+          <div class="input-row">
+            <label for="q8">Final FOL symbolization</label>
+            <input id="q8" type="text" autocomplete="off" />
+          </div>
+
+          <details class="hint">
+            <summary>Show hint</summary>
+            <p class="hint-text">
+              “Charlie only likes people who like themselves” is equivalent to:
+              for all people, if Charlie likes them, then they like themselves.
+            </p>
+          </details>
+
+          <details class="answer">
+            <summary>Show answer</summary>
+            <p class="answer-text">
+              <code>\forall x (Lcx -&gt; Lxx)</code>
+            </p>
+          </details>
+        </article>
+
+        <!-- Q9 -->
+        <article class="question">
+          <div class="question-header">
+            <span class="question-label">
+              9. If Charlie likes everyone, then he likes himself.
+            </span>
+          </div>
+
+          <p class="scratch-note">
+            Use this space to sketch the structure in English / symbols before writing
+            your final answer.
+          </p>
+
+          <div class="input-row">
+            <label for="q9-scratch">Scratchwork</label>
+            <textarea id="q9-scratch"></textarea>
+          </div>
+
+          <div class="input-row">
+            <label for="q9">Final FOL symbolization</label>
+            <input id="q9" type="text" autocomplete="off" />
+          </div>
+
+          <details class="hint">
+            <summary>Show hint</summary>
+            <p class="hint-text">
+              Make one big conditional: antecedent =
+              “Charlie likes everyone”; consequent = “Charlie likes Charlie”.
+            </p>
+          </details>
+
+          <details class="answer">
+            <summary>Show answer</summary>
+            <p class="answer-text">
+              <code>(\forall x Lcx) -&gt; Lcc</code>
+              <br /><br />
+              <strong>Note:</strong> This says: “If Charlie likes everyone in the
+              domain, then he likes himself.” That is a tautology in our setting.
+              It is <em>not</em> equivalent to
+              <code>\forall x (Lcx -&gt; Lcc)</code>, which can be false in a
+              situation where the domain is {Alice, Bob, Charlie}, Charlie likes
+              Alice but not himself (since Alice does not have the property that:
+              if Charlie likes her, then he likes himself).
+            </p>
+          </details>
+        </article>
+
+        <!-- Q10 -->
+        <article class="question">
+          <div class="question-header">
+            <span class="question-label">
+              10. Everyone who bought a ticket likes someone who wants to visit the Galapagos.
+            </span>
+          </div>
+
+          <p class="scratch-note">
+            Use this space to sketch the structure in English / symbols before writing
+            your final answer.
+          </p>
+
+          <div class="input-row">
+            <label for="q10-scratch">Scratchwork</label>
+            <textarea id="q10-scratch"></textarea>
+          </div>
+
+          <div class="input-row">
+            <label for="q10">Final FOL symbolization</label>
+            <input id="q10" type="text" autocomplete="off" />
+          </div>
+
+          <details class="hint">
+            <summary>Show hint</summary>
+            <p class="hint-text">
+              Start: “For all <em>x</em>, if <em>x</em> bought a ticket then …”.
+              The consequent should say that <em>x</em> likes someone who wants to
+              visit the Galapagos. You can reuse your structure from
+              “Charlie likes someone who wants to visit the Galapagos”.
+            </p>
+          </details>
+
+          <details class="answer">
+            <summary>Show answer</summary>
+            <p class="answer-text">
+              <code>\forall x (Tx -&gt; \exists y (Lxy &amp; Gy))</code>
+            </p>
+          </details>
+        </article>
+
+        <!-- Q11 -->
+        <article class="question">
+          <div class="question-header">
+            <span class="question-label">
+              11. Someone who bought a ticket likes someone who wants to visit the Galapagos.
+            </span>
+          </div>
+
+          <p class="scratch-note">
+            Use this space to sketch the structure in English / symbols before writing
+            your final answer.
+          </p>
+
+          <div class="input-row">
+            <label for="q11-scratch">Scratchwork</label>
+            <textarea id="q11-scratch"></textarea>
+          </div>
+
+          <div class="input-row">
+            <label for="q11">Final FOL symbolization</label>
+            <input id="q11" type="text" autocomplete="off" />
+          </div>
+
+          <details class="hint">
+            <summary>Show hint</summary>
+            <p class="hint-text">
+              Use an existential quantifier for the ticket-buyer, and within that
+              say that this person bought a ticket and likes someone who wants to
+              visit the Galapagos.
+            </p>
+          </details>
+
+          <details class="answer">
+            <summary>Show answer</summary>
+            <p class="answer-text">
+              <code>\exists x (Tx &amp; \exists y (Lxy &amp; Gy))</code>
+            </p>
+          </details>
+        </article>
+
+        <!-- Q12 -->
+        <article class="question">
+          <div class="question-header">
+            <span class="question-label">
+              12. Anyone who bought a ticket likes someone who wants to visit the Galapagos.
+            </span>
+          </div>
+
+          <p class="scratch-note">
+            Use this space to sketch the structure in English / symbols before writing
+            your final answer.
+          </p>
+
+          <div class="input-row">
+            <label for="q12-scratch">Scratchwork</label>
+            <textarea id="q12-scratch"></textarea>
+          </div>
+
+          <div class="input-row">
+            <label for="q12">Final FOL symbolization</label>
+            <input id="q12" type="text" autocomplete="off" />
+          </div>
+
+          <details class="hint">
+            <summary>Show hint</summary>
+            <p class="hint-text">
+              “Anyone who bought a ticket” is just another way of saying
+              “everyone who bought a ticket”. So use a universal quantifier plus
+              an implication, as in Q10.
+            </p>
+          </details>
+
+          <details class="answer">
+            <summary>Show answer</summary>
+            <p class="answer-text">
+              <code>\forall x (Tx -&gt; \exists y (Lxy &amp; Gy))</code>
+            </p>
+          </details>
+        </article>
+
+        <!-- Q13 -->
+        <article class="question">
+          <div class="question-header">
+            <span class="question-label">
+              13. Everyone who bought a ticket either wants to visit the Galapagos
+              or likes someone who wants to visit the Galapagos.
+            </span>
+          </div>
+
+          <p class="scratch-note">
+            Use this space to sketch the structure in English / symbols before writing
+            your final answer.
+          </p>
+
+          <div class="input-row">
+            <label for="q13-scratch">Scratchwork</label>
+            <textarea id="q13-scratch"></textarea>
+          </div>
+
+          <div class="input-row">
+            <label for="q13">Final FOL symbolization</label>
+            <input id="q13" type="text" autocomplete="off" />
+          </div>
+
+          <details class="hint">
+            <summary>Show hint</summary>
+            <p class="hint-text">
+              As in Q10, start with “for all <em>x</em>, if <em>x</em> bought a
+              ticket then …”. The consequent should be a disjunction:
+              either <em>x</em> wants to visit the Galapagos, or
+              <em>x</em> likes someone who wants to visit the Galapagos.
+            </p>
+          </details>
+
+          <details class="answer">
+            <summary>Show answer</summary>
+            <p class="answer-text">
+              <code>\forall x (Tx -&gt; (Gx v \exists y (Lxy &amp; Gy)))</code>
+            </p>
+          </details>
+        </article>
+
+        <!-- Q14 -->
+        <article class="question">
+          <div class="question-header">
+            <span class="question-label">
+              14. Everyone who either bought a ticket or made an aspirational moodboard
+              wants to visit the Galapagos.
+            </span>
+          </div>
+
+          <p class="scratch-note">
+            Use this space to sketch the structure in English / symbols before writing
+            your final answer.
+          </p>
+
+          <div class="input-row">
+            <label for="q14-scratch">Scratchwork</label>
+            <textarea id="q14-scratch"></textarea>
+          </div>
+
+          <div class="input-row">
+            <label for="q14">Final FOL symbolization</label>
+            <input id="q14" type="text" autocomplete="off" />
+          </div>
+
+          <details class="hint">
+            <summary>Show hint</summary>
+            <p class="hint-text">
+              Use a universal quantifier and an implication. In the antecedent,
+              use a disjunction saying that the person either bought a ticket or
+              made an aspirational moodboard. In the consequent, say that they want
+              to visit the Galapagos.
+            </p>
+          </details>
+
+          <details class="answer">
+            <summary>Show answer</summary>
+            <p class="answer-text">
+              <code>\forall x ((Tx v Mx) -&gt; Gx)</code>
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
