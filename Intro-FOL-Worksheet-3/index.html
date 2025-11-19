@@ -357,7 +357,7 @@
     <p><strong>Names:</strong> a: <span id="a-display">1</span>, b: <span id="b-display">2</span></p>
     <p><strong>R</strong> (binary relation): <span id="r-display"></span></p>
     <div class="diagram-container">
-      <svg id="relation-diagram" width="300" height="300" style="border: 1px solid #ddd; background: white;"></svg>
+      <svg id="relation-diagram" width="300" height="250" style="border: 1px solid #ddd; background: white;"></svg>
     </div>
     <div style="margin-top: 15px; text-align: center;">
       <button class="new-model-button" onclick="resetWithNewModel()">🔄 New Model (Erase All & Start Fresh)</button>
@@ -468,7 +468,7 @@
       const svg = document.getElementById('relation-diagram');
       svg.innerHTML = '';
       
-      const width = 300, height = 300;
+      const width = 300, height = 250;
       const centerX = width / 2, centerY = height / 2;
       const radius = 80;
       
@@ -576,7 +576,7 @@
     function drawSelfLoop(svg, pos, obj) {
       // Calculate the angle pointing away from center (outward from triangle)
       const centerX = 300 / 2;
-      const centerY = 300 / 2;
+      const centerY = 250 / 2;
       const toCenterX = centerX - pos.x;
       const toCenterY = centerY - pos.y;
       const angleFromCenter = Math.atan2(toCenterY, toCenterX);
