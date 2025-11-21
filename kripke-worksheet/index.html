@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Modal Logic Worksheet</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    #layout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-rows: auto;
+  height: 100vh;
+    }
+
+    aside {
+      border-right: 1px solid #e5e7eb;
+      background: #111827;
+      color: #e5e7eb;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+
+    aside h2 {
+      margin-top: 0;
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .problem-button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 0.4rem 0.6rem;
+      border-radius: 0.375rem;
+      border: none;
+      margin-bottom: 0.3rem;
+      background: #1f2937;
+      color: inherit;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .problem-button.active {
+      background: #2563eb;
+    }
+
+    .problem-button .status {
+      margin-right: 0.35rem;
+    }
+
+    main {
+      padding: 1rem 1.25rem;
+      overflow-y: auto;
+    }
+
+    main h1 {
+      margin-top: 0;
+      font-size: 1.25rem;
+    }
+
+    .constraint-list {
+      font-size: 0.9rem;
+      padding-left: 1.1rem;
+    }
+
+    .constraint-list li {
+      margin-bottom: 0.25rem;
+    }
+
+    .check-button {
+      margin-top: 0.75rem;
+      padding: 0.5rem 0.9rem;
+      border-radius: 999px;
+      border: none;
+      background: #16a34a;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .check-button:hover {
+      background: #15803d;
+    }
+
+    #result {
+      margin-top: 0.75rem;
+      background: #111827;
+      color: #e5e7eb;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+    }
+
+    #playground-panel {
+        margin-top: 1.25rem;
+        background: #ffffff;
+        border-radius: 0.75rem;
+        border: 1px solid #e5e7eb;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; 
+    }
+
+
+    #playground-header {
+        padding: 0.5rem 0.75rem;
+        border-bottom: 1px solid #e5e7eb;
+        font-size: 0.9rem;
+        background: #f9fafb;
+        }
+
+    #playground-frame {
+        border: none;
+        width: 100%;
+        height: 700px;
+        border: none;
+    }
+  </style>
+</head>
+<body>
+
+<div id="layout">
+  <!-- Sidebar: problem list -->
+  <aside>
+    <h2>Problems</h2>
+    <div id="problem-list"></div>
+  </aside>
+
+  <!-- Middle: active problem -->
+  <main>
+    <h1 id="problem-title">Modal logic worksheet</h1>
+    <div id="problem-description"></div>
+
+    <h3>Constraints to satisfy</h3>
+    <ul id="constraint-list" class="constraint-list"></ul>
+
+    <button class="check-button" onclick="checkCurrentProblem()">Check current model</button>
+
+    <div id="result"></div>
+
+    <!-- 👇 moved inside main instead of separate column -->
+    <section id="playground-panel">
+      <div id="playground-header">
+        Use the editor below to build a model for the active problem.
+        Then click “Check current model”.
+      </div>
+      <iframe
+        id="playground-frame"
+        src="modallogic/index.html"
+        title="Modal Logic Playground"
+      ></iframe>
+    </section>
+  </main>
+
+
+</div>
+
+<script>
+  // --- Problem definitions ---------------------------------------------------
+
+  // Constraint types:
+  //  { type: 'truth',   world: 0, formula: '[]p', expected: true }
+  //  { type: 'truth',   world: 0, formula: '<>q', expected: false }
+  //  { type: 'different', world: 0, formulaA: '[]p', formulaB: '[]q' }
+
+  const problems = [
+  // ------------------------------------------------------------
+  // CW: Show satisfiable (formula true at w@ = w0)
+  // ------------------------------------------------------------
+
+  {
+    id: 1,
+    title: "CW1. Make (P ∧ Q) true at w₀",
+    description: `
+Show that the sentence (P ∧ Q) is modally satisfiable by
+creating a model in which it is true at w₀.`,
+    constraints: [
+      { type: "truth", world: 0, formula: "(P & Q)", expected: true }
+    ],
+    modelString: null,
+    solved: false
+  },
+
+  {
+    id: 2,
+    title: "CW2. Make (P ∧ ¬□P) true at w₀",
+    description: `
+Show modally satisfiable: P ∧ ¬□P is true at w₀.`,
+    constraints: [
+      { type: "truth", world: 0, formula: "(P & ~[]P)", expected: true }
+    ],
+    modelString: null,
+    solved: false
+  },
+
+  {
+    id: 3,
+    title: "CW3. Make (◇P ∧ ◇¬P) true at w₀",
+    description: `
+Show modally satisfiable: ◇P ∧ ◇¬P is true at w₀.`,
+    constraints: [
+      { type: "truth", world: 0, formula: "(<>P & <>~P)", expected: true }
+    ],
+    modelString: null,
+    solved: false
+  },
+
+  {
+    id: 4,
+    title: "CW4. Make (P → Q) true at w₀",
+    description: `
+Show modally satisfiable: (P → Q) is true at w₀.`,
+    constraints: [
+      { type: "truth", world: 0, formula: "(P -> Q)", expected: true }
+    ],
+    modelString: null,
+    solved: false
+  },
+
+  {
+    id: 5,
+    title: "CW5. Make □(P → Q) true at w₀",
+    description: `
+Show modally satisfiable: □(P → Q) is true at w₀.`,
+    constraints: [
+      { type: "truth", world: 0, formula: "[] (P -> Q)", expected: true }
+    ],
+    modelString: null,
+    solved: false
+  },
+
+  {
+    id: 6,
+    title: "CW6. Make (P ∧ ◇¬P) true at w₀",
+    description: `
+Show modally satisfiable: (P ∧ ◇¬P) is true at w₀.`,
+    constraints: [
+      { type: "truth", world: 0, formula: "(P & <>~P)", expected: true }
+    ],
+    modelString: null,
+    solved: false
+  },
+
+  {
+    id: 7,
+    title: "CW7. Make (□(P→Q) ∧ □(P→¬Q)) true at w₀",
+    description: `
+Show modally satisfiable: □(P→Q) ∧ □(P→¬Q) is true at w₀.`,
+    constraints: [
+      { type: "truth", world: 0, formula: "([](P->Q) & [](P->~Q))", expected: true }
+    ],
+    modelString: null,
+    solved: false
+  },
+
+  // ------------------------------------------------------------
+  // Participation Q: show non-equivalence (different truth values)
+  // ------------------------------------------------------------
+
+  {
+    id: 8,
+    title: "NE1. P vs □P",
+    description: `
+Create a model where P is true at w₀ and □P is false
+(or vice-versa), showing they are not equivalent.`,
+    constraints: [
+      { type: "different", world: 0, formulaA: "P", formulaB: "[]P" }
+    ],
+    modelString: null,
+    solved: false
+  },
+
+  {
+    id: 9,
+    title: "NE2. (P ∧ □Q) vs □(P ∧ Q)",
+    description: `
+Create a model where (P ∧ □Q) and □(P ∧ Q) differ in truth at w₀.`,
+    constraints: [
+      { type: "different", world: 0, formulaA: "(P & []Q)", formulaB: "[](P & Q)" }
+    ],
+    modelString: null,
+    solved: false
+  },
+
+  {
+    id: 10,
+    title: "NE3. (P→Q) vs □(P→Q)",
+    description: `
+Create a model where (P→Q) and □(P→Q) differ at w₀.`,
+    constraints: [
+      { type: "different", world: 0, formulaA: "(P->Q)", formulaB: "[](P->Q)" }
+    ],
+    modelString: null,
+    solved: false
+  },
+
+  {
+    id: 11,
+    title: "NE4. (P→□Q) vs ◇¬Q",
+    description: `
+Create a model where (P→□Q) and ◇¬Q differ at w₀.`,
+    constraints: [
+      { type: "different", world: 0, formulaA: "(P->[]Q)", formulaB: "<>~Q" }
+    ],
+    modelString: null,
+    solved: false
+  },
+
+  // ------------------------------------------------------------
+  // Participation Q: falsify principles
+  // ------------------------------------------------------------
+
+  {
+    id: 12,
+    title: "PR1. Falsify □φ → □□φ at w₀",
+    description: `
+Create a Kripke model where □φ → □□φ is false at w₀.  
+(i.e. □φ is true at w₀ but □□φ is false at w₀.)`,
+    constraints: [
+      { type: "truth", world: 0, formula: "( []P -> [][]P )", expected: false }
+      // You can replace P with any variable — MPL doesn't care.
+    ],
+    modelString: null,
+    solved: false
+  },
+
+  {
+    id: 13,
+    title: "PR2. Falsify ◇□φ → □φ at w₀",
+    description: `
+Create a Kripke model where ◇□φ → □φ is false at w₀.  
+(i.e. ◇□φ holds at w₀ but □φ does not.)`,
+    constraints: [
+      { type: "truth", world: 0, formula: "( <>[]P -> []P )", expected: false }
+    ],
+    modelString: null,
+    solved: false
+  }
+];
+
+  let activeIndex = 0;
+
+  // --- Helper: render problem list ------------------------------------------
+
+  function renderProblemList() {
+    const list = document.getElementById("problem-list");
+    list.innerHTML = "";
+    problems.forEach((p, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "problem-button" + (idx === activeIndex ? " active" : "");
+      const status = p.solved ? "✅" : "⬜";
+      btn.innerHTML = `<span class="status">${status}</span>${p.title}`;
+      btn.onclick = () => setActiveProblem(idx);
+      list.appendChild(btn);
+    });
+  }
+
+  // --- Helper: render active problem ----------------------------------------
+
+  function setActiveProblem(index) {
+    activeIndex = index;
+    renderProblemList();
+
+    const p = problems[activeIndex];
+
+    document.getElementById("problem-title").textContent = p.title;
+    document.getElementById("problem-description").textContent = p.description.trim();
+
+    const ul = document.getElementById("constraint-list");
+    ul.innerHTML = "";
+    for (const c of p.constraints) {
+      const li = document.createElement("li");
+      if (c.type === "truth") {
+        li.textContent = `At w0: ${c.formula} should be ${c.expected ? "true" : "false"}.`;
+      } else if (c.type === "different") {
+        li.textContent = `At w0: ${c.formulaA} and ${c.formulaB} must have different truth values.`;
+      }
+      ul.appendChild(li);
+    }
+
+    document.getElementById("result").textContent = "";
+
+    // Load model into iframe: either the stored one or the default
+    const frame = document.getElementById("playground-frame");
+    let url = "modallogic/index.html";
+    if (p.modelString) {
+      url += "?model=" + encodeURIComponent(p.modelString);
+    }
+    frame.src = url;
+  }
+
+  // --- Forall x style pretty-print ------------------------------------------
+
+  function formatModelForForallX(model) {
+    const states = model.getStates();
+    const worldIndices = [];
+    for (let i = 0; i < states.length; i++) {
+      if (states[i] !== null && states[i] !== undefined) {
+        worldIndices.push(i);
+      }
+    }
+
+    // Worlds: W: 1,2,...
+    const W = "W: " + (worldIndices.length ? worldIndices.map(i => i + 1).join(", ") : "—");
+
+    // Accessibility relation R
+    const pairs = [];
+    for (const i of worldIndices) {
+      const succ = model.getSuccessorsOf(i);
+      for (const j of succ) {
+        if (worldIndices.includes(j)) {
+          pairs.push(`⟨${i + 1},${j + 1}⟩`);
+        }
+      }
+    }
+    const R = "R: " + (pairs.length ? pairs.join(", ") : "—");
+
+    // Valuation ν
+    const varsSet = new Set();
+    for (const st of states) {
+      if (st) {
+        for (const v in st) varsSet.add(v);
+      }
+    }
+    const vars = Array.from(varsSet).sort();
+    const nuParts = [];
+    for (const i of worldIndices) {
+      const st = states[i] || {};
+      for (const v of vars) {
+        const val = !!st[v];
+        nuParts.push(`ν${i + 1}(${v}) = ${val ? "T" : "F"}`);
+      }
+    }
+    const nu = "ν: " + (nuParts.length ? nuParts.join(", ") : "—");
+
+    return `${W}\n${R}\n${nu}`;
+  }
+
+  // --- Core: check current model against constraints ------------------------
+
+  function checkCurrentProblem() {
+    const frame = document.getElementById("playground-frame");
+    const win = frame.contentWindow;
+
+    if (!win || !win.MPL || !win.model) {
+      alert("Playground not ready yet — try again in a moment.");
+      return;
+    }
+
+    const p = problems[activeIndex];
+    const model = win.model;
+    const MPL = win.MPL;
+
+    // Persist model so when we switch away and back, we reload it
+    p.modelString = model.getModelString();
+
+    let allOk = true;
+    const lines = [];
+
+    for (const c of p.constraints) {
+      if (c.type === "truth") {
+        const wff = new MPL.Wff(c.formula);
+        const val = MPL.truth(model, c.world, wff);
+        const ok = (val === c.expected);
+        allOk = allOk && ok;
+        lines.push(
+          `At w${c.world + 1}: ${c.formula} is ${val ? "T" : "F"} (expected ${c.expected ? "T" : "F"})`
+        );
+      } else if (c.type === "different") {
+        const fA = new MPL.Wff(c.formulaA);
+        const fB = new MPL.Wff(c.formulaB);
+        const valA = MPL.truth(model, c.world, fA);
+        const valB = MPL.truth(model, c.world, fB);
+        const ok = (valA !== valB);
+        allOk = allOk && ok;
+        lines.push(
+          `At w${c.world }: ${c.formulaA} = ${valA ? "T" : "F"}, ` +
+          `${c.formulaB} = ${valB ? "T" : "F"} (need them to differ)`
+        );
+      }
+    }
+
+    p.solved = allOk;
+    renderProblemList();
+
+    let out = lines.join("\n") + "\n\n";
+    if (allOk) {
+      out += "✅ Solved!\n\nModel in Forall x style:\n";
+      out += formatModelForForallX(model);
+    } else {
+      out += "❌ Not yet — adjust your model and try again.";
+    }
+
+    document.getElementById("result").textContent = out;
+  }
+
+  // --- Init ------------------------------------------------------------------
+
+  window.addEventListener("load", () => {
+    renderProblemList();
+    setActiveProblem(0);
+  });
+</script>
+
+<script>
+function resizePlayground() {
+  const iframe = document.getElementById('playground-frame');
+  if (!iframe) return;
+  try {
+    const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+    iframe.style.height = innerDoc.body.scrollHeight + "px";
+  } catch (e) {
+    // silently fail if cross-origin (should not happen here)
+  }
+}
+
+// Resize once when iframe loads
+document.getElementById('playground-frame').addEventListener('load', resizePlayground);
+</script>
+
+</body>
+
+
+</html>

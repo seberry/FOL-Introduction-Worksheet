@@ -1,0 +1,14 @@
+
+This is a version of some practice problems associated with lecture notes for my intermediate logic class. 
+
+
+## Modal Logic Playground
+
+This worksheet embeds and slightly modifies the
+[Modal Logic Playground](https://github.com/rkirsling/modallogic) by
+Ross Kirsling, used under the MIT License (see `modallogic/LICENSE`).
+
+My changes:
+- switched propositional variable labels to uppercase (P, Q, …)
+- small keybinding/focus tweaks to make the playground work well
+  inside an iframe-based worksheet.
