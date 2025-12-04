@@ -182,17 +182,17 @@
   // Each problem records the premise that must be true at w0 and the
   // conclusion that must be false at w0 to witness non-entailment.
   const problems = [
-    {
-      id: 1,
-      title: "1. □(A ∨ B) ⊭ □A",
-      description: `Show a model where □(A ∨ B) is true at w₀ but □A is false.`,
-      constraints: [
-        { type: "truth", world: 0, formula: "[](A | B)", expected: true },
-        { type: "truth", world: 0, formula: "[]A", expected: false }
-      ],
-      modelString: null,
-      solved: false
-    },
+      { 
+        id: 1,
+        title: "1. □(P ∨ Q) ⊭ □P",
+        description: `Show a model where □(P ∨ Q) is true at w₀ but □P is false.`,
+        constraints: [
+          { type: "truth", world: 0, formula: "[](P | Q)", expected: true },
+          { type: "truth", world: 0, formula: "[]P", expected: false }
+        ],
+        modelString: null,
+        solved: false
+      },
     {
       id: 2,
       title: "2. □¬(P ∧ Q) ⊭ (□¬P ∨ □¬Q)",
@@ -204,50 +204,50 @@
       modelString: null,
       solved: false
     },
-    {
-      id: 3,
-      title: "3. □X ⊭ X",
-      description: `Find a world w₀ where □X holds but X itself is false.`,
-      constraints: [
-        { type: "truth", world: 0, formula: "[]X", expected: true },
-        { type: "truth", world: 0, formula: "X", expected: false }
-      ],
-      modelString: null,
-      solved: false
-    },
-    {
-      id: 4,
-      title: "4. X ⊭ ◇X",
-      description: `Make X true at w₀ while ◇X fails at w₀.`,
-      constraints: [
-        { type: "truth", world: 0, formula: "X", expected: true },
-        { type: "truth", world: 0, formula: "<>X", expected: false }
-      ],
-      modelString: null,
-      solved: false
-    },
-    {
-      id: 5,
-      title: "5. □M ⊭ □□M",
-      description: `Ensure □M is true at w₀ but □□M is false at w₀.`,
-      constraints: [
-        { type: "truth", world: 0, formula: "[]M", expected: true },
-        { type: "truth", world: 0, formula: "[][]M", expected: false }
-      ],
-      modelString: null,
-      solved: false
-    },
-    {
-      id: 6,
-      title: "6. ◇M ⊭ □◇M",
-      description: `Build a model where ◇M holds at w₀ but □◇M does not.`,
-      constraints: [
-        { type: "truth", world: 0, formula: "<>M", expected: true },
-        { type: "truth", world: 0, formula: "[]<>M", expected: false }
-      ],
-      modelString: null,
-      solved: false
-    }
+      {
+        id: 3,
+        title: "3. □P ⊭ P",
+        description: `Find a world w₀ where □P holds but P itself is false.`,
+        constraints: [
+          { type: "truth", world: 0, formula: "[]P", expected: true },
+          { type: "truth", world: 0, formula: "P", expected: false }
+        ],
+        modelString: null,
+        solved: false
+      },
+      {
+        id: 4,
+        title: "4. P ⊭ ◇P",
+        description: `Make P true at w₀ while ◇P fails at w₀.`,
+        constraints: [
+          { type: "truth", world: 0, formula: "P", expected: true },
+          { type: "truth", world: 0, formula: "<>P", expected: false }
+        ],
+        modelString: null,
+        solved: false
+      },
+      {
+        id: 5,
+        title: "5. □Q ⊭ □□Q",
+        description: `Ensure □Q is true at w₀ but □□Q is false at w₀.`,
+        constraints: [
+          { type: "truth", world: 0, formula: "[]Q", expected: true },
+          { type: "truth", world: 0, formula: "[][]Q", expected: false }
+        ],
+        modelString: null,
+        solved: false
+      },
+      {
+        id: 6,
+        title: "6. ◇Q ⊭ □◇Q",
+        description: `Build a model where ◇Q holds at w₀ but □◇Q does not.`,
+        constraints: [
+          { type: "truth", world: 0, formula: "<>Q", expected: true },
+          { type: "truth", world: 0, formula: "[]<>Q", expected: false }
+        ],
+        modelString: null,
+        solved: false
+      }
   ];
 
   let activeIndex = 0;
