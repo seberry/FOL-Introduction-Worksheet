@@ -1,0 +1,445 @@
+import React, { useState, useEffect, useRef } from 'react';
+import cytoscape from 'cytoscape';
+
+// ==========================================
+// 1. DATA: STATIC EXAMPLES (GALLERIES)
+// ==========================================
+
+const EXISTENTIAL_EXAMPLES = [
+  {
+    id: 101,
+    folSentence: "∃x Rxx",
+    description: "Something arrows itself. True. Witness: 2.",
+    domain: ['1', '2', '3'],
+    r_relation: [['2', '2']],
+    b_set: []
+  },
+  {
+    id: 102,
+    folSentence: "∃x Bx",
+    description: "Something is Blue. True. Witness: 1.",
+    domain: ['1', '2', '3'],
+    r_relation: [],
+    b_set: ['1']
+  },
+  {
+    id: 103,
+    folSentence: "∃x ∀y Rxy",
+    description: "Something arrows everything. True. Witness: 1.",
+    domain: ['1', '2', '3'],
+    r_relation: [['1', '1'], ['1', '2'], ['1', '3']],
+    b_set: []
+  }
+];
+
+const UNIVERSAL_EXAMPLES = [
+  {
+    id: 201,
+    folSentence: "∀x Rxx",
+    description: "Everything arrows itself. True. (No exceptions).",
+    domain: ['1', '2'],
+    r_relation: [['1', '1'], ['2', '2']],
+    b_set: []
+  },
+  {
+    id: 202,
+    folSentence: "∀x ∃y Rxy",
+    description: "Everything arrows something. True. (1 arrows 2, 2 arrows 1).",
+    domain: ['1', '2'],
+    r_relation: [['1', '2'], ['2', '1']],
+    b_set: []
+  },
+  {
+    id: 203,
+    folSentence: "∀x (Bx → Rxx)",
+    description: "Every Blue thing arrows itself. True. (2 is Blue/Loops. 1 is White/Ignored).",
+    domain: ['1', '2'],
+    r_relation: [['2', '2']],
+    b_set: ['2']
+  }
+];
+
+
+// ==========================================
+// 2. DATA: EXERCISES (Simple to Hard)
+// ==========================================
+
+const EXERCISES_EXISTENTIAL = [
+  {
+    id: 'ex_e1',
+    goal: "Warm Up 1",
+    folSentence: "∃x Bx",
+    description: "Make this TRUE: Paint at least one node Blue.",
+    initialDomain: ['1', '2', '3'],
+    initialR: [],
+    initialB: [],
+    checkLogic: (r, b, d) => {
+      if (b.length > 0) return { correct: true, msg: "Correct! You found a witness." };
+      return { correct: false, msg: "The set of Blue things is empty. Click 'Paint Blue' and click a node." };
+    }
+  },
+  {
+    id: 'ex_e2',
+    goal: "Warm Up 2",
+    folSentence: "∃x Rxx",
+    description: "Make this TRUE: Draw at least one self-loop.",
+    initialDomain: ['1', '2', '3'],
+    initialR: [],
+    initialB: [],
+    checkLogic: (r, b, d) => {
+      const hasLoop = r.some(p => p[0] === p[1]);
+      if (hasLoop) return { correct: true, msg: "Correct! You created an object that arrows itself." };
+      return { correct: false, msg: "No self-loops found. Select 'Draw Arrows', then click a node twice." };
+    }
+  },
+  {
+    id: 'ex_e3',
+    goal: "Challenge",
+    folSentence: "∃x (Bx ∧ Rxx)",
+    description: "Make this TRUE: Create a witness that is BOTH Blue AND arrows itself.",
+    initialDomain: ['1', '2', '3'],
+    initialR: [['1', '2']],
+    initialB: ['3'],
+    checkLogic: (r, b, d) => {
+      const selfLoopers = new Set(r.filter(p => p[0] === p[1]).map(p => p[0]));
+      const bSet = new Set(b);
+      const witness = d.find(id => bSet.has(id) && selfLoopers.has(id));
+      if (witness) return { correct: true, msg: `Correct! Node ${witness} is a Blue Self-Looper.` };
+      return { correct: false, msg: "We need one specific node that has BOTH properties at the same time." };
+    }
+  }
+];
+
+const EXERCISES_UNIVERSAL = [
+  {
+    id: 'ex_u1',
+    goal: "Warm Up 1",
+    folSentence: "∀x Bx",
+    description: "Make this TRUE: Everything must be Blue.",
+    initialDomain: ['1', '2', '3'],
+    initialR: [],
+    initialB: ['1'],
+    checkLogic: (r, b, d) => {
+      const missing = d.filter(id => !b.includes(id));
+      if (missing.length === 0) return { correct: true, msg: "Correct! No exceptions found." };
+      return { correct: false, msg: `False. Nodes {${missing.join(',')}} are not Blue.` };
+    }
+  },
+  {
+    id: 'ex_u2',
+    goal: "Warm Up 2",
+    folSentence: "∀x Rxx",
+    description: "Make this TRUE: Everything must arrow itself.",
+    initialDomain: ['1', '2'],
+    initialR: [['1', '1']],
+    initialB: [],
+    checkLogic: (r, b, d) => {
+      const loopers = new Set(r.filter(p => p[0] === p[1]).map(p => p[0]));
+      const missing = d.filter(id => !loopers.has(id));
+      if (missing.length === 0) return { correct: true, msg: "Correct! Every node has a loop." };
+      return { correct: false, msg: `False. Node ${missing[0]} does not arrow itself.` };
+    }
+  },
+  {
+    id: 'ex_u3',
+    goal: "The Boss Fight",
+    folSentence: "∀x (Bx → ∃y Rxy)",
+    description: "Make this FALSE. (Create a Counter-Example: A Blue thing that arrows nothing).",
+    initialDomain: ['1', '2', '3'],
+    initialR: [['1', '2'], ['2', '3'], ['3', '1']],
+    initialB: ['1', '2', '3'],
+    checkLogic: (r, b, d) => {
+      // We want a Blue node with NO outgoing arrows
+      const sources = new Set(r.map(p => p[0]));
+      const bSet = new Set(b);
+      const counter = d.find(id => bSet.has(id) && !sources.has(id));
+      
+      if (counter) return { correct: true, msg: `Correct! Node ${counter} is Blue but arrows nothing. The universal claim fails.` };
+      return { correct: false, msg: "Currently True. To make it False, find a Blue node and remove all its outgoing arrows." };
+    }
+  }
+];
+
+
+// ==========================================
+// 3. CORE DISPLAY COMPONENT (Read-Only)
+// ==========================================
+const CytoscapeViz = ({ domain, r_relation, b_set }) => {
+  const containerRef = useRef(null);
+  const cyRef = useRef(null);
+  const B = new Set(b_set);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const elements = [];
+    domain.forEach(id => {
+      const isBlue = B.has(id);
+      elements.push({
+        data: { 
+          id, label: id,
+          bgColor: isBlue ? '#bfdbfe' : '#ffffff',
+          borderColor: isBlue ? '#2563eb' : '#000000',
+          borderWidth: isBlue ? 4 : 2
+        }
+      });
+    });
+    r_relation.forEach(([src, tgt], idx) => {
+      elements.push({ data: { id: `e${idx}`, source: src, target: tgt } });
+    });
+
+    if (cyRef.current) cyRef.current.destroy();
+    cyRef.current = cytoscape({
+      container: containerRef.current,
+      elements: elements,
+      style: [
+        {
+          selector: 'node',
+          style: {
+            'background-color': 'data(bgColor)', 'border-color': 'data(borderColor)', 'border-width': 'data(borderWidth)',
+            'label': 'data(label)', 'text-valign': 'center', 'text-halign': 'center',
+            'width': 50, 'height': 50, 'font-size': 20, 'font-weight': 'bold', 'color': '#000000'
+          }
+        },
+        {
+          selector: 'edge',
+          style: {
+            'width': 2, 'line-color': '#000000', 'target-arrow-color': '#000000',
+            'target-arrow-shape': 'triangle', 'curve-style': 'bezier', 'arrow-scale': 1.2
+          }
+        },
+        {
+          selector: 'edge[source = target]',
+          style: { 'curve-style': 'loop', 'loop-direction': '-45deg', 'loop-sweep': '90deg', 'control-point-step-size': 60 }
+        }
+      ],
+      layout: { name: 'circle', padding: 40, avoidOverlap: true },
+      userZoomingEnabled: false, userPanningEnabled: false, boxSelectionEnabled: false, autoungrabify: false
+    });
+    return () => { if (cyRef.current) cyRef.current.destroy(); };
+  }, [domain, r_relation, b_set]);
+
+  return <div ref={containerRef} style={{ height: '220px', width: '100%', backgroundColor: '#ffffff' }} />;
+};
+
+
+// ==========================================
+// 4. INTERACTIVE COMPONENT
+// ==========================================
+const InteractiveExercise = ({ config }) => {
+  const [rRelation, setRRelation] = useState(config.initialR);
+  const [bSet, setBSet] = useState(config.initialB);
+  const [mode, setMode] = useState('arrow'); 
+  const [sourceNode, setSourceNode] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+  const containerRef = useRef(null);
+  const cyRef = useRef(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const elements = [];
+    const B = new Set(bSet);
+    
+    config.initialDomain.forEach(id => {
+      const isBlue = B.has(id);
+      const isSelected = sourceNode === id;
+      elements.push({
+        data: { 
+          id, label: id,
+          bgColor: isSelected ? '#fde047' : (isBlue ? '#bfdbfe' : '#ffffff'),
+          borderColor: isBlue ? '#2563eb' : '#000000',
+          borderWidth: isBlue ? 4 : 2
+        }
+      });
+    });
+    rRelation.forEach(([src, tgt], idx) => {
+      elements.push({ data: { id: `e${idx}`, source: src, target: tgt } });
+    });
+
+    if (cyRef.current) cyRef.current.destroy();
+    cyRef.current = cytoscape({
+      container: containerRef.current,
+      elements: elements,
+      style: [
+        {
+          selector: 'node',
+          style: {
+            'background-color': 'data(bgColor)', 'border-color': 'data(borderColor)', 'border-width': 'data(borderWidth)',
+            'label': 'data(label)', 'text-valign': 'center', 'text-halign': 'center',
+            'width': 50, 'height': 50, 'font-size': 20, 'font-weight': 'bold', 'color': '#000000'
+          }
+        },
+        {
+          selector: 'edge',
+          style: {
+            'width': 3, 'line-color': '#000000', 'target-arrow-color': '#000000',
+            'target-arrow-shape': 'triangle', 'curve-style': 'bezier', 'arrow-scale': 1.2
+          }
+        },
+        {
+          selector: 'edge[source = target]',
+          style: { 'curve-style': 'loop', 'loop-direction': '-45deg', 'loop-sweep': '90deg', 'control-point-step-size': 60 }
+        }
+      ],
+      layout: { name: 'circle', padding: 40 },
+      userZoomingEnabled: false, userPanningEnabled: false, autoungrabify: true
+    });
+
+    cyRef.current.on('tap', 'node', (evt) => {
+      const nodeId = evt.target.id();
+      if (mode === 'color') {
+        setBSet(prev => {
+          const s = new Set(prev);
+          s.has(nodeId) ? s.delete(nodeId) : s.add(nodeId);
+          return Array.from(s);
+        });
+        setFeedback(null);
+      } else {
+        if (sourceNode === null) setSourceNode(nodeId);
+        else {
+          setRRelation(prev => {
+            const exists = prev.find(p => p[0] === sourceNode && p[1] === nodeId);
+            return exists ? prev.filter(p => p !== exists) : [...prev, [sourceNode, nodeId]];
+          });
+          setSourceNode(null);
+          setFeedback(null);
+        }
+      }
+    });
+
+    cyRef.current.on('tap', (evt) => {
+      if (evt.target === cyRef.current) setSourceNode(null);
+    });
+
+    return () => { if (cyRef.current) cyRef.current.destroy(); };
+  }, [rRelation, bSet, sourceNode, mode, config]);
+
+  const handleCheck = () => {
+    const res = config.checkLogic(rRelation, bSet, config.initialDomain);
+    setFeedback(res);
+  };
+
+  return (
+    <div style={{ border: '2px solid #000', borderRadius: '8px', padding: '20px', backgroundColor: '#f9fafb', marginBottom: '40px' }}>
+      <div style={{ marginBottom: '15px' }}>
+        <h4 style={{ fontSize: '1rem', fontWeight: 'bold', color: '#666', textTransform: 'uppercase', letterSpacing: '1px' }}>{config.goal}</h4>
+        <div style={{ fontFamily: 'serif', fontSize: '1.4rem', fontWeight: 'bold', margin: '5px 0' }}>{config.folSentence}</div>
+        <p style={{ color: '#333' }}>{config.description}</p>
+      </div>
+
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+        <button onClick={() => { setMode('arrow'); setSourceNode(null); }} style={{ padding: '6px 12px', border: '1px solid #000', backgroundColor: mode === 'arrow' ? '#000' : '#fff', color: mode === 'arrow' ? '#fff' : '#000', cursor: 'pointer', fontWeight: 'bold' }}>Draw Arrows</button>
+        <button onClick={() => { setMode('color'); setSourceNode(null); }} style={{ padding: '6px 12px', border: '1px solid #000', backgroundColor: mode === 'color' ? '#2563eb' : '#fff', color: mode === 'color' ? '#fff' : '#000', cursor: 'pointer', fontWeight: 'bold' }}>Paint Blue</button>
+      </div>
+
+      <div style={{ border: '1px solid #ccc', backgroundColor: '#fff', borderRadius: '4px', height: '250px' }}>
+        <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
+      </div>
+
+      <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <button onClick={handleCheck} style={{ backgroundColor: '#15803d', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>Check</button>
+        {feedback && (
+          <div style={{ flex: 1, marginLeft: '20px', padding: '8px', borderRadius: '4px', fontWeight: 'bold', backgroundColor: feedback.correct ? '#dcfce7' : '#fee2e2', color: feedback.correct ? '#166534' : '#991b1b' }}>
+            {feedback.msg}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+
+// ==========================================
+// 5. LAYOUT HELPERS
+// ==========================================
+const ChapterHeader = ({ number, title, subtitle }) => (
+  <div style={{ marginTop: '100px', marginBottom: '60px', textAlign: 'center' }}>
+    <div style={{ fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '2px', color: '#666', marginBottom: '10px' }}>Chapter {number}</div>
+    <h2 style={{ fontSize: '2.5rem', fontWeight: '900', margin: '0 0 10px 0' }}>{title}</h2>
+    <p style={{ fontSize: '1.2rem', color: '#444', fontStyle: 'italic' }}>{subtitle}</p>
+    <div style={{ width: '60px', height: '4px', backgroundColor: '#000', margin: '30px auto' }} />
+  </div>
+);
+
+const StaticGallery = ({ models }) => {
+  const formatSet = (arr) => `{${arr.join(', ')}}`;
+  const formatPairs = (pairs) => `{ ${pairs.map(p => `<${p[0]},${p[1]}>`).join(', ')} }`;
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px', marginBottom: '60px' }}>
+      {models.map(m => (
+        <div key={m.id} style={{ border: '1px solid #000', borderRadius: '8px', padding: '15px', backgroundColor: '#fff' }}>
+          <div style={{ marginBottom: '10px', borderBottom: '1px solid #eee', paddingBottom: '5px' }}>
+             <h3 style={{ margin: 0, fontFamily: 'serif' }}>{m.folSentence}</h3>
+             <small style={{ color: '#555' }}>{m.description}</small>
+          </div>
+          <div style={{ fontSize: '0.8rem', fontFamily: 'monospace', color: '#666', marginBottom: '10px' }}>
+            R = {formatPairs(m.r_relation)} <br/> 
+            {m.b_set.length > 0 && <span style={{color: '#2563eb'}}>B = {formatSet(m.b_set)}</span>}
+          </div>
+          <CytoscapeViz domain={m.domain} r_relation={m.r_relation} b_set={m.b_set} />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+
+// ==========================================
+// 6. MAIN APP
+// ==========================================
+const App = () => {
+  return (
+    <div style={{ padding: '60px 20px', fontFamily: 'Georgia, serif', maxWidth: '900px', margin: '0 auto', color: '#111' }}>
+      
+      {/* HEADER */}
+      <div style={{ textAlign: 'center', marginBottom: '80px' }}>
+        <h1 style={{ fontSize: '3rem', fontWeight: '900', marginBottom: '10px' }}>The Logic of Quantifiers</h1>
+        <p style={{ fontSize: '1.2rem', color: '#555' }}>Visualizing Truth Conditions, Witnesses, and Counter-Models</p>
+      </div>
+
+      {/* CHAPTER 1: EXISTENTIAL */}
+      <ChapterHeader number="1" title="Existential Claims (∃x)" subtitle="The Search for a Witness" />
+      
+      <div style={{ fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '40px' }}>
+        <p>
+          An existential claim is true if you can find <strong>at least one</strong> object in the domain that satisfies the description. 
+          We call this object a "witness". If you find one, you are done. The rest of the domain doesn't matter.
+        </p>
+      </div>
+
+      <h3 style={{ fontFamily: 'sans-serif', borderBottom: '2px solid #eee', paddingBottom: '10px', marginBottom: '20px' }}>Examples</h3>
+      <StaticGallery models={EXISTENTIAL_EXAMPLES} />
+
+      <h3 style={{ fontFamily: 'sans-serif', borderBottom: '2px solid #eee', paddingBottom: '10px', marginBottom: '20px' }}>Exercises</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {EXERCISES_EXISTENTIAL.map(ex => <InteractiveExercise key={ex.id} config={ex} />)}
+      </div>
+
+
+      {/* CHAPTER 2: UNIVERSAL */}
+      <ChapterHeader number="2" title="Universal Claims (∀x)" subtitle="No Exceptions Allowed" />
+
+      <div style={{ fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '40px' }}>
+        <p>
+          A universal claim is true only if <strong>everything</strong> in the domain satisfies the description. 
+          To prove it true, you must check every single object. To prove it false, you only need to find one "bad apple" (counter-example).
+        </p>
+      </div>
+
+      <h3 style={{ fontFamily: 'sans-serif', borderBottom: '2px solid #eee', paddingBottom: '10px', marginBottom: '20px' }}>Examples</h3>
+      <StaticGallery models={UNIVERSAL_EXAMPLES} />
+
+      <h3 style={{ fontFamily: 'sans-serif', borderBottom: '2px solid #eee', paddingBottom: '10px', marginBottom: '20px' }}>Exercises</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {EXERCISES_UNIVERSAL.map(ex => <InteractiveExercise key={ex.id} config={ex} />)}
+      </div>
+
+      {/* FOOTER */}
+      <div style={{ textAlign: 'center', marginTop: '100px', borderTop: '1px solid #eee', paddingTop: '40px', color: '#aaa', fontFamily: 'sans-serif' }}>
+        <p>End of Lesson</p>
+      </div>
+
+    </div>
+  );
+};
+
+export default App;
