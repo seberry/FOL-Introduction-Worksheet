@@ -11,10 +11,8 @@ const ModelVisualizer = () => {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Parse domain
     const nodes = domain.split(',').map(s => s.trim()).filter(s => s);
     
-    // Parse relation pairs
     const parsePairs = (str) => {
       const pairs = [];
       const regex = /\(([^,]+),([^)]+)\)/g;
@@ -28,11 +26,10 @@ const ModelVisualizer = () => {
     const relationPairs = parsePairs(relation);
     const redPairSet = new Set(parsePairs(redPairs).map(p => `${p[0]},${p[1]}`));
 
-    // Build cytoscape elements
     const elements = [
       ...nodes.map(n => ({ data: { id: n, label: n } })),
       ...relationPairs.map(([src, tgt], idx) => {
-        const isRed = redPairSet.has(`${src},${tgt}`);
+        const isRed = redPairSet.has(`${src},${tgt}`);  // Fixed this line
         return {
           data: { 
             id: `e${idx}`,
@@ -44,12 +41,10 @@ const ModelVisualizer = () => {
       })
     ];
 
-    // Destroy previous instance
     if (cyRef.current) {
       cyRef.current.destroy();
     }
 
-    // Create cytoscape instance
     cyRef.current = cytoscape({
       container: containerRef.current,
       elements: elements,
