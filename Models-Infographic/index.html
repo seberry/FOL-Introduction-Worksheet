@@ -1,0 +1,169 @@
+import React, { useState, useEffect, useRef } from 'react';
+import cytoscape from 'cytoscape';
+
+const ModelVisualizer = () => {
+  const [domain, setDomain] = useState('a, b, c');
+  const [relation, setRelation] = useState('(a,b), (a,a), (c,b)');
+  const [redPairs, setRedPairs] = useState('(a,a)');
+  const cyRef = useRef(null);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    // Parse domain
+    const nodes = domain.split(',').map(s => s.trim()).filter(s => s);
+    
+    // Parse relation pairs
+    const parsePairs = (str) => {
+      const pairs = [];
+      const regex = /\(([^,]+),([^)]+)\)/g;
+      let match;
+      while ((match = regex.exec(str)) !== null) {
+        pairs.push([match[1].trim(), match[2].trim()]);
+      }
+      return pairs;
+    };
+
+    const relationPairs = parsePairs(relation);
+    const redPairSet = new Set(parsePairs(redPairs).map(p => `${p[0]},${p[1]}`));
+
+    // Build cytoscape elements
+    const elements = [
+      ...nodes.map(n => ({ data: { id: n, label: n } })),
+      ...relationPairs.map(([src, tgt], idx) => {
+        const isRed = redPairSet.has(`${src},${tgt}`);
+        return {
+          data: { 
+            id: `e${idx}`,
+            source: src, 
+            target: tgt,
+            color: isRed ? '#ef4444' : '#3b82f6'
+          }
+        };
+      })
+    ];
+
+    // Destroy previous instance
+    if (cyRef.current) {
+      cyRef.current.destroy();
+    }
+
+    // Create cytoscape instance
+    cyRef.current = cytoscape({
+      container: containerRef.current,
+      elements: elements,
+      style: [
+        {
+          selector: 'node',
+          style: {
+            'background-color': '#fff',
+            'border-color': '#333',
+            'border-width': 2,
+            'label': 'data(label)',
+            'text-valign': 'center',
+            'text-halign': 'center',
+            'width': 40,
+            'height': 40,
+            'font-size': 16,
+            'font-weight': 'bold'
+          }
+        },
+        {
+          selector: 'edge',
+          style: {
+            'width': 2,
+            'line-color': 'data(color)',
+            'target-arrow-color': 'data(color)',
+            'target-arrow-shape': 'triangle',
+            'curve-style': 'bezier',
+            'arrow-scale': 1.5
+          }
+        },
+        {
+          selector: 'edge[source = target]',
+          style: {
+            'curve-style': 'loop',
+            'loop-direction': '0deg',
+            'loop-sweep': '60deg',
+            'control-point-step-size': 80
+          }
+        }
+      ],
+      layout: {
+        name: 'circle',
+        radius: 100
+      }
+    });
+
+    return () => {
+      if (cyRef.current) {
+        cyRef.current.destroy();
+      }
+    };
+  }, [domain, relation, redPairs]);
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6">FOL Model Visualizer</h1>
+      
+      <div className="space-y-4 mb-6">
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Domain (comma-separated elements):
+          </label>
+          <input
+            type="text"
+            value={domain}
+            onChange={(e) => setDomain(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded"
+            placeholder="a, b, c"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Relation R (ordered pairs):
+          </label>
+          <input
+            type="text"
+            value={relation}
+            onChange={(e) => setRelation(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded"
+            placeholder="(a,b), (a,a), (c,b)"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Red arrows (optional):
+          </label>
+          <input
+            type="text"
+            value={redPairs}
+            onChange={(e) => setRedPairs(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded"
+            placeholder="(a,a)"
+          />
+        </div>
+      </div>
+
+      <div 
+        ref={containerRef}
+        className="border-2 border-gray-300 rounded"
+        style={{ height: '400px', width: '100%' }}
+      />
+
+      <div className="mt-4 text-sm text-gray-600">
+        <p><strong>Tips:</strong></p>
+        <ul className="list-disc list-inside space-y-1 mt-2">
+          <li>Self-loops (like (a,a)) will curve nicely</li>
+          <li>You can drag nodes to rearrange them</li>
+          <li>Red arrows are useful for highlighting special relations</li>
+        </ul>
+      </div>
+    </div>
+  );
+};
+
+export default ModelVisualizer;
